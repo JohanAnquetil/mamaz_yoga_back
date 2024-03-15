@@ -9,6 +9,8 @@
 # Utilisez l'image de base officielle de Node.js
 FROM node:latest
 
+RUN npm install -g nodemon
+
 # Installez dockerize ou un outil similaire
 ENV DOCKERIZE_VERSION v0.6.1
 RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
@@ -28,5 +30,7 @@ COPY . .
 # Exposez le port sur lequel votre application s'exécute
 EXPOSE 3000
 
-# Utilisez dockerize pour attendre que MySQL soit prêt avant de démarrer l'application Node.js
-CMD dockerize -wait tcp://db:3306 -timeout 20s node app.js
+# Utilisez dockerize pour attendre qp.jsue MySQL soit prêt avant de démarrer l'application Node.js
+#CMD dockerize -wait tcp://db:3306 -timeout 20s node app.js
+CMD sh -c 'dockerize -wait tcp://db:3306 -timeout 20s && nodemon -L /usr/src/app/app.js'
+

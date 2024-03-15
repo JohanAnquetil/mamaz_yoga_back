@@ -1,47 +1,13 @@
 const express = require('express');
 const app = express();
-require('dotenv').config({ path: './idapi.env' });
-const mysql = require('mysql');
+const { success } = require('./helper.js');
+const { sequelize, db } = require('./config/sequelize.js');
+const Post = require('./src/models/posts.js');
+const PostMeta = require('./src/models/posts_meta.js');
 
-// Configuration de la connexion à la base de données MySQL
-const db = mysql.createConnection({
-  host: 'db',
-  user: process.env.USERNAME,
-  password: process.env.PASSWORD,
-  database: 'mamazYoga2',
-});
-
-// //Configuration de la connexion à la base de données MySQL
-// const db = mysql.createConnection({
-//   host: 'joh80808080anahmamazyoga.mysql.db',
-//   user: 'johanahmamazyoga',
-//   password: 'ParisEstMagique75',
-//   database: 'johanahmamazyoga',
-// });
-
-
-// Connexion à la base de données MySQL
-db.connect((err) => {
-  if (err) {
-    console.error('Erreur de connexion à la base de données :', err);
-  } else {
-    console.log('Connecté à la base de données MySQL');
-  }
-});
-
-// Route Express pour récupérer les publications
-app.get('/api/posts', (req, res) => {
-  const query = 'SELECT * FROM mod350_posts WHERE post_type = "post" AND post_status = "publish";';
-
-  db.query(query, (err, results) => {
-    if (err) {
-      console.error('Erreur lors de la récupération des publications :', err);
-      res.status(500).json({ error: 'Erreur lors de la récupération des publications' });
-    } else {
-      res.json(results);
-    }
-  });
-});
+// Appel des routes
+require('./routes/get_published_posts')(app);
+require('./routes/get_published_posts_by_pk')(app);
 
 // Démarrage du serveur Express
 const port = process.env.PORT || 3000;

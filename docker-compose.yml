@@ -3,8 +3,8 @@ services:
   db:
     image: mysql:latest
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_ROOT_PASSWORD: test
+      MYSQL_DATABASE: test
     volumes:
       - dbdata:/var/lib/mysql
   phpmyadmin:
@@ -17,7 +17,19 @@ services:
     build: ./api
     ports:
       - "3000:3000"
+    environment:
+      DB_HOST: db
+      DB_USER: root
+      DB_PASS: test
+      DB_NAME: test
+
     depends_on:
       - db
+    volumes:
+    - ./api:/usr/src/app
+    - /usr/src/app/node_modules
+    command: sh -c 'dockerize -wait tcp://db:3306 -timeout 30s && nodemon -L /usr/src/app/app.js'
+
 volumes:
   dbdata:
+
