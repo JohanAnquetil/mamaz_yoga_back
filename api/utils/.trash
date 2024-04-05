@@ -1,0 +1,28 @@
+était dans get_member_by_mail.js
+
+// console.log(PasswordHash); // Doit afficher la fonction ou la classe
+
+// const hasher = new PasswordHash(len, portable, phpversion);
+
+
+// const encodedPassword = utf8.encode(password)
+// const valid = hasher.CheckPassword(encodedPassword, storedhash);
+// console.log(valid);
+
+
+// // Assurez-vous que cette portion de code est exécutée dans un contexte asynchrone
+// async function hashPassword() {
+//     const hasher = new PasswordHash(8, true, 7); // Les paramètres peuvent varier selon votre besoin
+//     const passwordToHash = "JOHANMAMAZA";
+
+//     try {
+//         // Attendre la résolution de la promesse
+//         const hashedPassword = await hasher.HashPassword(utf8.encode(passwordToHash));
+//         console.log("Haché:", hashedPassword);
+//     } catch (error) {
+//         console.error("Erreur lors du hachage du mot de passe:", error);
+//     }
+// }
+
+// // Appel de la fonction
+// hashPassword();
