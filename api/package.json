@@ -17,11 +17,20 @@
     "url": "https://github.com/JohanAnquetil/mamaz_yoga_back/issues"
   },
   "dependencies": {
+    "@cpavrai/node-phpass": "^1.0.6",
+    "@iotechpis/node-phpass": "^1.0.7",
+    "bcrypt": "^5.1.1",
+    "bcryptjs": "^2.4.3",
+    "crypto-js": "^4.2.0",
     "dotenv": "^16.4.1",
     "express": "^4.17.1",
     "mysql": "^2.18.1",
     "mysql2": "^3.9.2",
-    "sequelize": "^6.37.1"
+    "passport": "^0.7.0",
+    "php-unserialize": "^0.0.1",
+    "randbytes": "^0.0.1",
+    "sequelize": "^6.37.1",
+    "utf8": "^3.0.0"
   },
   "homepage": "https://github.com/JohanAnquetil/mamaz_yoga_back#readme",
   "devDependencies": {
