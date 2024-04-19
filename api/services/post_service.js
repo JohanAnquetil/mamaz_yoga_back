@@ -19,19 +19,19 @@ async function getPublishedPosts() {
 }
 
 async function getPostData(post) {
-    let imageUrl = null;
-    let introParagraph = null;
+    let image_url = null;
+    let delailed_articles = null;
 
     const elementorData = post.PostMetas.find(meta => meta.meta_key === '_elementor_data')?.meta_value || '[]';
     const parsedData = JSON.parse(elementorData);
 
-    imageUrl = extractFirstImageUrl(parsedData);
-    introParagraph = extractIntroParagraph(parsedData);
+    image_url = extractFirstImageUrl(parsedData);
+    delailed_articles = extractIntroParagraph(parsedData);
 
     return {
         ...post.get({ plain: true }),
-        imageUrl,
-        introParagraph
+        image_url,
+        delailed_articles
     };
 }
 

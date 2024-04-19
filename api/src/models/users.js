@@ -13,6 +13,9 @@ User.init({
     user_login:{
         type: DataTypes.STRING(20),
         allowNull:false,
+        unique: {
+            msg: 'Login déjà utilisé'
+        }
     },
     user_pass:{
         type: DataTypes.STRING(255),
