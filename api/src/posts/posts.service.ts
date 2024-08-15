@@ -8,8 +8,8 @@ import { UpdatePostDto } from "./dto/update-post.dto";
 import { EntityManager, IsNull, Repository, Not, UpdateResult } from "typeorm";
 import { PostNews } from "./entities/post-news.entity";
 import { InjectRepository } from "@nestjs/typeorm";
-import { ElementorDataService } from "./extract_elementor_data";
-import { ExtractIllustrationImage } from "./extract_illustration_image";
+import { ElementorDataService } from "./utils/extract_elementor_data";
+import { ExtractIllustrationImage } from "./utils/extract_illustration_image";
 
 @Injectable()
 export class PostsService {

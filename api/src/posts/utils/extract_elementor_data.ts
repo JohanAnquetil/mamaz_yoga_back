@@ -1,15 +1,20 @@
 import { Injectable } from "@nestjs/common";
+import { PostFormatted } from "../dto/post_formatted.dto";
 
 @Injectable()
-export class ElementorDataService {
-  extractAllContent(elementorData: any): any[] {
+export class ElementorDataService{
+   // Extracts content from Elementor data.
+   // @param elementorData - The raw Elementor data to process.
+   // @returns An array of content objects extracted from the Elementor data.
+
+  extractAllContent(elementorData: any): PostFormatted[] {
     const contentArray = [];
+    // Parse the Elementor data if it's in string format
     try {
-      // Si elementorData est une chaîne de caractères JSON, la convertir en objet
       if (typeof elementorData === "string") {
         elementorData = JSON.parse(elementorData);
       }
-
+      // Iterate over sections, columns, and widgets to extract content
       for (const section of elementorData) {
         if (!section.elements) continue;
         for (const column of section.elements) {
@@ -51,6 +56,7 @@ export class ElementorDataService {
     } catch (e) {
       console.error("Failed to parse elementorData", e);
     }
+    console.log(contentArray)
     return contentArray;
   }
 }

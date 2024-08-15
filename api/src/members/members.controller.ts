@@ -17,6 +17,7 @@ import { UpdateMemberDto } from "./dto/update-member.dto";
 import { JwtAuthGuard } from "@app/auth/guards/jwt.guards";
 
 @Controller("members")
+// Apply JWT guard to all routes
 @UseGuards(JwtAuthGuard)
 export class MembersController {
   constructor(private membersService: MembersService) {}
@@ -41,7 +42,7 @@ export class MembersController {
   }
 
   @Post()
-  async create(@Body() member: Member) {
+  async create(@Body() member: Member): Promise<void> {
     return this.membersService.create(member);
   }
 
@@ -49,7 +50,7 @@ export class MembersController {
   async update(
     @Param("id", ParseIntPipe) id: number,
     @Body() updateMemberDto: UpdateMemberDto,
-  ) {
+  ): Promise<void> {
     const affected = await this.membersService.update(id, updateMemberDto);
     if (affected === 0) {
       throw new NotFoundException(`Member with ID ${id} not found`);

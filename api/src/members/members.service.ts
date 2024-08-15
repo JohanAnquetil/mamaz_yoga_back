@@ -2,6 +2,8 @@ import {
   Injectable,
   InternalServerErrorException,
   NotFoundException,
+  Param,
+  ParseIntPipe,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import {
@@ -13,8 +15,6 @@ import { Member } from "./entities/member.entity";
 //import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 import { CreateMemberDto } from "./dto/create-member.dto";
 import { UpdateMemberDto } from "./dto/update-member.dto";
-import { checkPrime } from "crypto";
-//const phpUnserialize = require('php-unserialize');
 
 @Injectable()
 export class MembersService {
@@ -24,11 +24,12 @@ export class MembersService {
     private readonly entityManager: EntityManager,
   ) {}
 
+  // Create a new member
   async create(createMemberDto: CreateMemberDto): Promise<void> {
     const member = new Member(createMemberDto);
     await this.entityManager.save(member);
   }
-
+  // find all members
   async findAll(): Promise<{ message: string; data: Member[] } | string> {
     const allMembers = await this.memberRepository.find();
     if (allMembers) {
@@ -40,7 +41,7 @@ export class MembersService {
       return "Aucun membre trouvé";
     }
   }
-
+  // Find one member by ID
   async findOne(
     id: number,
   ): Promise<{ message: string; data: Member } | undefined> {
@@ -68,16 +69,18 @@ export class MembersService {
       );
     }
   }
-
-  async update(id: number, updateData: UpdateMemberDto) {
+  // Update a member by ID thanks to the Member ID
+  // returns the number of row affected
+  async update(id: number, updateData: UpdateMemberDto): Promise<number> {
     const result: UpdateResult = await this.memberRepository.update(
       id,
       updateData,
     );
     return result.affected!;
   }
-
-  async delete(id: number): Promise<string> {
+  // Delete a member by ID thanks to the member ID
+  // Returns a confirmation message
+  async delete(@Param("id", ParseIntPipe) id: number): Promise<string> {
     await this.memberRepository.delete(id);
     return "Le membre a bien été effacé";
   }

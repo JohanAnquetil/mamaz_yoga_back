@@ -2,7 +2,8 @@ import { Injectable } from "@nestjs/common";
 
 @Injectable()
 export class ExtractIllustrationImage {
-  extractFirstImageUrl(elementorData: any) {
+  // Extract first image of the elementor data in order to use it as cover
+  extractFirstImageUrl(elementorData: any): string | null {
     if (typeof elementorData === "string") {
       elementorData = JSON.parse(elementorData);
     }
