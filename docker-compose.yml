@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 services:
   db:
     image: mysql:latest
@@ -23,15 +23,33 @@ services:
       DB_HOST: ${DB_HOST}
       DB_USER: ${DB_USER}
       DB_PASS: ${MYSQL_ROOT_PASSWORD}
-      DB_NAME: ${MYSQL_ROOT_PASSWORD}
+      DB_NAME: ${MYSQL_DATABASE}
 
     depends_on:
       - db
     volumes:
-    - ./api:/usr/src/app
-    - /usr/src/app/node_modules
-    command: sh -c 'dockerize -wait tcp://db:3306 -timeout 30s && nodemon -L /usr/src/app/app.js'
+      - ./api:/usr/src/app
+      - /usr/src/app/node_modules
+      - /Users/johanque/Documents/Projects/yoga/back_nest_js_type_orm/videos:/usr/src/app/videos 
+    command: sh -c 'dockerize -wait tcp://db:3306 -timeout 30s && nodemon -L /usr/src/app/dist/main.js'
+  wordpressTer:
+    image: wordpress:latest
+    depends_on:
+      - db
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: root
+      WORDPRESS_DB_PASSWORD: test
+      WORDPRESS_DB_NAME: mamazYoga2
+      WORDPRESS_TABLE_PREFIX: "mod350_"
+    ports:
+      - "8082:80"
+    volumes:
+      - wordpress_data_ter:/var/www/html
+      - /Users/johanque/Documents/Projects/yoga/back_nest_js_type_orm/luluzyoga/wp-content:/var/www/html/wp-content
+      #- /Users/johanque/Documents/Projects/yoga/back_nest_js_type_orm/luluzyoga/wp-admin:/var/www/html/wp-admin
+      #- /Users/johanque/Documents/Projects/yoga/back_nest_js_type_orm/luluzyoga/wp-includes:/var/www/html/wp-includes
 
 volumes:
   dbdata:
-
+  wordpress_data_ter:

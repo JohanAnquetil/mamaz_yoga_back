@@ -1,0 +1,43 @@
+# Ignore node_modules directory
+node_modules/
+
+# Ignore user-specific directories
+/Users/
+/luluzyoga/
+
+# Ignore sensitive environment files
+.env
+.env.save
+api/.env
+api/.env.test
+
+# Project-specific files to ignore
+mamazYoga2
+member.rtf
+passHash
+wp-config.php
+
+# Ignore log files
+*.log
+
+# Ignore database files
+mamazyp80.sql
+
+# Ignore package-lock files
+package-lock.json
+api/package-lock.json
+
+# Ignore IDE/editor specific files
+api/.vscode
+.vscode/
+.idea/
+
+# Ignore build output directories
+api/dist
+
+# Ignore large or unnecessary directories
+/videos/
+/wordpress/
+
+# Ignore macOS system files
+.DS_Store

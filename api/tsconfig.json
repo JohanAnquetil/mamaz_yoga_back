@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es6",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "paths": {
+      "@app/*": ["src/*"]
+    }
+  },
+  //"include": ["src/**/*.ts"],
+  "include": [
+    "src/**/*.ts",
+    "php-unserialize.d.ts",
+    "utf8.d.ts",
+    "locutus.d.ts",
+    "crypto-js.d.ts",
+    "src/types.d.ts"
+  ],
+  "exclude": ["node_modules"]
+}
