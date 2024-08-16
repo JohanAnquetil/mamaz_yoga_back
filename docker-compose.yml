@@ -30,7 +30,7 @@ services:
     volumes:
       - ./api:/usr/src/app
       - /usr/src/app/node_modules
-      - /Users/johanque/Documents/Projects/yoga/back_nest_js_type_orm/videos:/usr/src/app/videos 
+      - /Users/johanque/Documents/Projects/yoga/definitive_project/mamaz_yoga_back/videos:/usr/src/app/videos 
     command: sh -c 'dockerize -wait tcp://db:3306 -timeout 30s && nodemon -L /usr/src/app/dist/main.js'
   wordpressTer:
     image: wordpress:latest
