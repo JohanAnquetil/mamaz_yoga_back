@@ -32,7 +32,7 @@ export class MembersService {
   // find all members
   async findAll(): Promise<{ message: string; data: Member[] } | string> {
     const allMembers = await this.memberRepository.find();
-    if (allMembers) {
+    if (allMembers.length > 0) {
       return {
         message: "Des membres ont été trouvés",
         data: allMembers,
@@ -76,12 +76,18 @@ export class MembersService {
       id,
       updateData,
     );
+    if (result.affected === 0) {
+      throw new NotFoundException(`Member with ID ${id} not found`);
+    }
     return result.affected!;
   }
   // Delete a member by ID thanks to the member ID
   // Returns a confirmation message
   async delete(@Param("id", ParseIntPipe) id: number): Promise<string> {
-    await this.memberRepository.delete(id);
+    const result = await this.memberRepository.delete(id);
+    if (result.affected === 0) {
+        throw new NotFoundException(`Member with ID ${id} not found`);
+    }
     return "Le membre a bien été effacé";
   }
 }

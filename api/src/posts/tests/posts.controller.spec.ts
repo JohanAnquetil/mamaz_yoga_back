@@ -3,12 +3,15 @@ import { PostsController } from '../posts.controller';
 import { PostsService } from '../posts.service';
 import { CreatePostDto } from '../dto/create-post.dto';
 import { UpdatePostDto } from '../dto/update-post.dto';
+import { NotFoundException } from '@nestjs/common';
 import { PostNews } from '../entities/post-news.entity';
 
+// Define the test suite for PostsController
 describe('PostsController', () => {
   let postsController: PostsController;
   let postsService: PostsService;
 
+// Setup the testing module and inject dependencies before each test
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [PostsController],
@@ -30,7 +33,7 @@ describe('PostsController', () => {
     postsController = module.get<PostsController>(PostsController);
     postsService = module.get<PostsService>(PostsService);
   });
-
+// Test the create method
   describe('create', () => {
     it('should call the postsService create method with the correct arguments', async () => {
       const createPostDto: CreatePostDto = {
@@ -52,7 +55,7 @@ describe('PostsController', () => {
       expect(postsService.create).toHaveBeenCalledWith(createPostDto);
     });
   });
-
+// Test the findAll method
   describe('findAll', () => {
     it('should return an array of posts', async () => {
       const result: PostNews[] = [{
@@ -77,6 +80,7 @@ describe('PostsController', () => {
     });
   });
 
+// Test the findPublished method
   describe('findPublished', () => {
     it('should return an array of published posts', async () => {
       const result = { message: 'Les posts publiés sont bien reçus', posts: [] };
@@ -92,6 +96,7 @@ describe('PostsController', () => {
     });
   });
 
+  // Test the findOne method
   describe('findOne', () => {
     it('should return a single post by ID', async () => {
       const result = { message: 'le post a été trouvé', data: { id: 1, title: 'Test Post' } };
@@ -101,12 +106,13 @@ describe('PostsController', () => {
     });
 
     it('should throw an exception if the post is not found', async () => {
-      jest.spyOn(postsService, 'findOne').mockRejectedValue(new Error('Post not found'));
-
-      await expect(postsController.findOne('1')).rejects.toThrow('Post not found');
-    });
+        jest.spyOn(postsService, 'findOne').mockResolvedValue(undefined); // Simule un post non trouvé
+     
+        await expect(postsController.findOne('1')).rejects.toThrow(NotFoundException);
+     });
   });
 
+  // Test the update method
   describe('update', () => {
     it('should update a post and return the number of affected rows', async () => {
       const result = 1;
@@ -131,6 +137,7 @@ describe('PostsController', () => {
     });
   });
 
+  // Test the remove method
   describe('remove', () => {
     it('should delete a post and return a confirmation message', async () => {
       jest.spyOn(postsService, 'remove').mockResolvedValue('Post effacé');

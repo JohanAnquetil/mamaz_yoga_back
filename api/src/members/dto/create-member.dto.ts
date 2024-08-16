@@ -2,8 +2,8 @@ import {
   IsNotEmpty,
   IsString,
   IsNumber,
-  IsDate,
   IsOptional,
+  IsDateString,
 } from "class-validator";
 
 export class CreateMemberDto {
@@ -36,7 +36,7 @@ export class CreateMemberDto {
   readonly arm_user_url?: string;
 
   @IsNotEmpty()
-  @IsDate()
+  @IsDateString()
   readonly arm_user_registered?: Date;
 
   @IsNotEmpty()

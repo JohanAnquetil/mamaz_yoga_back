@@ -10,6 +10,7 @@ import {
   ValidationPipe,
   HttpException,
   HttpStatus,
+  NotFoundException,
 } from "@nestjs/common";
 import { PostsService } from "./posts.service";
 import { UpdatePostDto } from "./dto/update-post.dto";
@@ -51,8 +52,11 @@ export class PostsController {
   async findOne(@Param("id") id: string): Promise<{ message: string; data: {} } | undefined> {
     try {
       const onePost = await this.postsService.findOne(+id);
-      return onePost;
-    } catch (error) {
+      if (!onePost) {
+          throw new NotFoundException(`Le post avec l'id: ${id} n'existe pas`);
+      }
+      return onePost;} 
+      catch (error) {
       if (error instanceof HttpException) {
         throw error;
       }

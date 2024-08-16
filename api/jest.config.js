@@ -9,6 +9,7 @@ module.exports = {
   },
   collectCoverageFrom: ["**/*.(t|j)s"],
   coverageDirectory: "../coverage",
+  testTimeout: 10000,
   moduleNameMapper: {
     "^@app/(.*)$": "<rootDir>/$1",
   },

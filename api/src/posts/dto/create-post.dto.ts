@@ -3,7 +3,7 @@ import {
   IsString,
   IsNumber,
   IsDate,
-  IsOptional,
+  IsDateString,
 } from "class-validator";
 
 export class CreatePostDto {
@@ -16,10 +16,10 @@ export class CreatePostDto {
   readonly postAuthor!: number;
 
   @IsNotEmpty()
-  @IsDate()
+  @IsDateString()
   readonly postDate!: Date;
 
-  @IsDate()
+  @IsDateString()
   readonly postDateGmt!: Date;
 
   @IsString()
@@ -58,7 +58,7 @@ export class CreatePostDto {
   readonly pinged?: string;
 
   @IsNotEmpty()
-  @IsDate()
+  @IsDateString()
   readonly postModified?: Date;
 
   @IsNotEmpty()

@@ -3,14 +3,14 @@ import { CreateUsersMetaDto } from "./dto/create-users_meta.dto";
 import { UpdateUsersMetaDto } from "./dto/update-users_meta.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { UsersMeta } from "./entities/users_meta.entity";
-import { Repository } from "typeorm";
+import { EntityManager, Repository } from "typeorm";
 
 @Injectable()
 export class UsersMetaService {
   constructor(
     @InjectRepository(UsersMeta)
     private readonly usersMetaRepository: Repository<UsersMeta>,
-    //private readonly entityManager: EntityManager
+    private readonly entityManager: EntityManager
   ) {}
 
   async create(createUsersMetaDto: CreateUsersMetaDto): Promise<string> {
