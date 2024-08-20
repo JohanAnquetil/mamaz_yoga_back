@@ -43,6 +43,7 @@ export class PostsMetaController {
       }
     }
   }
+  
   @Patch(":id")
   update(
     @Param("id") id: string,

@@ -33,6 +33,9 @@ export class MembersController {
   ): Promise<{ message: string; data: Member } | undefined> {
     try {
       const member = await this.membersService.findOne(id);
+      if(!member) {
+          throw new NotFoundException(`Le post avec l'id: ${id} n'existe pas`);
+      }
       return member;
     } catch (error) {
       if (error instanceof HttpException) {

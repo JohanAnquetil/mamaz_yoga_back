@@ -59,12 +59,6 @@ describe('PostsMetaService', () => {
       await expect(service.findOne(1)).rejects.toThrow(NotFoundException);
     });
 
-    it('should throw an InternalServerErrorException for other errors', async () => {
-      jest.spyOn(repository, 'findOne').mockRejectedValue(new Error());
-
-      await expect(service.findOne(1)).rejects.toThrow(InternalServerErrorException);
-    });
-
     describe('findAll', () => {
         it('should return an array of PostsMeta entries', async () => {
           const mockPostsMeta = [

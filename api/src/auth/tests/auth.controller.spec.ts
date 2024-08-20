@@ -66,10 +66,10 @@ describe('AuthController', () => {
     const hashedPassword = await hashPassword("azerty");
       const mockUser: UserLogin = {
         id: 2,
-        userLogin: 'JohnD',
-        userNicename: 'JohnD',
-        userEmail: 'johnd@example.com',
-        displayName: 'John D.',
+        userLogin: 'ElsaB',
+        userNicename: 'ElsaB',
+        userEmail: 'ElsaB@example.com',
+        displayName: 'ElsaB.',
         is_premium: false,
         userPass: hashedPassword as string,
         userStatus: 1

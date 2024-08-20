@@ -161,25 +161,42 @@ export class VideosService {
       throw new HttpException('Video not found', HttpStatus.NOT_FOUND);
     }
   }
-
   async searchVideos(query: string): Promise<Array<{ category: string, name: string }>> {
     const categories = fs.readdirSync(this.videosPath, { withFileTypes: true })
       .filter(dirent => dirent.isDirectory())
       .map(dirent => dirent.name);
   
-    // Déclaration de `results` avec un type explicite
     let results: Array<{ category: string, name: string }> = [];
   
     for (const category of categories) {
       const categoryPath = path.join(this.videosPath, category);
-      const files = fs.readdirSync(categoryPath)
-        .filter(file => this.isVideoFile(file) && file.toLowerCase().includes(query.toLowerCase()));
+      const files = fs.readdirSync(categoryPath, { withFileTypes: true })
+        .filter(file => this.isVideoFile(file.name) && file.name.toLowerCase().includes(query.toLowerCase()));
   
-      results = results.concat(files.map(file => ({ category, name: file })));
+      results = results.concat(files.map(file => ({ category, name: file.name })));
     }
   
     return results;
   }
+  
+  // async searchVideos(query: string): Promise<Array<{ category: string, name: string }>> {
+  //   const categories = fs.readdirSync(this.videosPath, { withFileTypes: true })
+  //     .filter(dirent => dirent.isDirectory())
+  //     .map(dirent => dirent.name);
+  
+  //   // Déclaration de `results` avec un type explicite
+  //   let results: Array<{ category: string, name: string }> = [];
+  
+  //   for (const category of categories) {
+  //     const categoryPath = path.join(this.videosPath, category);
+  //     const files = fs.readdirSync(categoryPath, { withFileTypes: true })
+  //     .filter(file => this.isVideoFile(file) && file.toLowerCase().includes(query.toLowerCase()));
+  
+  //     results = results.concat(files.map(file => ({ category, name: file })));
+  //   }
+  
+  //   return results;
+  // }
   
 
 }

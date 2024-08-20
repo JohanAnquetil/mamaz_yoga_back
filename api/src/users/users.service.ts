@@ -1,13 +1,14 @@
 import { SubscriptionPlansService } from "@app/subscription_plans/subscription_plans.service";
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { HttpException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { unserialize } from "php-unserialize";
 import { Repository } from "typeorm";
-import { dateConversionUnixToIso } from "./date_conversion";
 import { CreateUserDto } from "./dto/create_user.dto";
 import { UpdateUserDto } from "./dto/update_user.dto";
 import { User } from "./entities/user.entity";
-import { isExpiredSubscription } from "./is_expired_subscription";
+import { isExpiredSubscription } from "./utils/is_expired_subscription";
+import { dateConversionUnixToIso } from "./utils/date_conversion";
+import { UsersMeta } from "@app/users_meta/entities/users_meta.entity";
 
 @Injectable()
 export class UsersService {
@@ -22,18 +23,26 @@ export class UsersService {
   }
 
   async findAll(): Promise<Record<string, any> | string> {
-    const queryAllUsers: any[] = await this.userRepository.find();
+    const queryAllUsers: User[] = await this.userRepository.find();
 
-    let users: any = [];
+    let users: Record<string, any>[] = [];
+
+    if (queryAllUsers.length === 0) {
+      return "Aucun utilisateur a été trouvé";
+  }
+
     if (queryAllUsers) {
-      queryAllUsers.map((user: any) => {
+      queryAllUsers.map((user) => {
         users.push({
+          displayName: "Elsa",
           id: user.id,
-          user_login: user.userLogin,
-          user_email: user.userEmail,
-          user_pass: user.userPass,
-          user_status: user.userStatus,
-          user_registered: user.userRegistered,
+          userLogin: user.userLogin,
+          userNicename: "Elsa",
+          userEmail: user.userEmail,
+          userPass: user.userPass,
+          userStatus: user.userStatus,
+          userRegistered: user.userRegistered,
+          usersMetas: user.usersMetas
         });
       });
       return {
@@ -41,7 +50,7 @@ export class UsersService {
         data: users,
       };
     } else {
-      return "Aucun utilisateur a été trouvé";
+      throw HttpException;
     }
   }
 

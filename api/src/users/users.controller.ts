@@ -5,6 +5,7 @@ import {
   Delete,
   Get,
   HttpException,
+  NotFoundException,
   Param,
   Patch,
   Post,
@@ -31,8 +32,12 @@ export class UsersController {
 
   @Get(":id")
   async findOne(@Param("id") id: string) {
+    const user = await this.usersService.findOne(+id);
     try {
-      return this.usersService.findOne(+id);
+      if (!user) {
+        throw new NotFoundException(`User with ID ${id} not found`);
+    }
+      return user
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;

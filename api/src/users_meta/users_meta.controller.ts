@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   HttpException,
+  NotFoundException,
 } from "@nestjs/common";
 import { UsersMetaService } from "./users_meta.service";
 import { CreateUsersMetaDto } from "./dto/create-users_meta.dto";
@@ -27,9 +28,13 @@ export class UsersMetaController {
   }
 
   @Get(":id")
-  findOne(@Param("id") id: string) {
+  async findOne(@Param("id") id: string) {
     try {
-      return this.usersMetaService.findOne(+id);
+      const usersMeta = await this.usersMetaService.findOne(+id);
+      if(!usersMeta) {
+        throw new NotFoundException(`L'User Meta avec l'id: ${id} n'existe pas`)
+      }; 
+      return usersMeta
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;
