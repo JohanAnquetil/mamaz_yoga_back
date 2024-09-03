@@ -41,3 +41,5 @@ api/dist
 
 # Ignore macOS system files
 .DS_Store
+
+mamaz_yoga.sql

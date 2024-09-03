@@ -1,15 +1,4 @@
-# FROM node:latest
-# WORKDIR /usr/src/app
-# COPY package*.json ./
-# RUN npm install
-# COPY . .
-# EXPOSE 3000
-# CMD ["node", "app.js"]
-
-# Utilisez l'image de base officielle de Node.js
 FROM node:latest
-
-RUN npm install -g nodemon
 
 # Installez dockerize ou un outil similaire
 ENV DOCKERIZE_VERSION v0.6.1
@@ -22,23 +11,14 @@ WORKDIR /usr/src/app
 
 # Copiez les fichiers du package et installez les dépendances
 COPY package*.json ./
+
 RUN npm install
 
 # Copiez le reste des fichiers de l'application
 COPY . .
 
-# Compilez l'application NestJS
-RUN npm run build
-
-# Debugging: Liste des fichiers dans le dossier dist
-RUN ls -la dist
-
 # Exposez le port sur lequel votre application s'exécute
 EXPOSE 3000
 
-# Utilisez dockerize pour attendre qp.jsue MySQL soit prêt avant de démarrer l'application Node.js
-
-#CMD sh -c 'dockerize -wait tcp://db:3306 -timeout 20s && nodemon -L /usr/src/app/app.js'
-CMD sh -c 'dockerize -wait tcp://db:3306 -timeout 20s && nodemon -L /usr/src/app/dist/main.js'
-# CMD [ "npm", "run", "start:dev" ]
+CMD ["dockerize", "-wait", "tcp://db:3306", "-timeout", "20s", "npm", "run", "start:prod"]
 
