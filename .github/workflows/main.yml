@@ -1,0 +1,33 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    # Déploiement sur le serveur Hostinger
+    - name: Deploy to Hostinger Server
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}   # Clé SSH privée pour Hostinger
+        SERVER_IP: ${{ secrets.SERVER_IP }}               # IP du serveur Hostinger
+        SERVER_USER: "root"                               # Utilisateur SSH (à adapter si nécessaire)
+      run: |
+        echo "$SSH_PRIVATE_KEY" > private_key              # Crée un fichier temporaire pour la clé privée
+        chmod 600 private_key                              # Fixe les permissions pour la clé
+        ssh -i private_key -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP << 'EOF'
+        cd /root/project/mamaz_yoga_back/mamaz_yoga_back 
+        sudo docker-compose down                           # Arrête les anciens conteneurs
+        sudo docker-compose pull                           # Tire les dernières images si nécessaire
+        sudo docker-compose up -d --build                  # Reconstruit et démarre les conteneurs en arrière-plan
+        EOF
