@@ -51,35 +51,6 @@ export class AuthService {
     return userWithPremium; // Retourne l'objet UserWithPremium
   }
 
-  // // Validate if user exist and if the login is valid and correspond to the hash stored in database
-  // async validateUser({ username, password }: AuthPayloadDto) {
-  //   const user: any =
-  //     await this.usersService.findOneByLogin(username);
-  //   //const user: any = await this.usersService.findOneByLogin(username);
-
-  //   if (user) {
-  //     console.log({ user });
-  //     const hasActivePremiumSubscription: boolean = await this.usersService
-  //       .findOne(user.id)
-  //       .then((user: any) => {
-  //         return user.data.has_active_premium_subscription;
-  //       });
-  //     if (!user)
-  //       throw new HttpException(
-  //         `Utilisateur ou mot de passe inconnu`,
-  //         HttpStatus.UNAUTHORIZED,
-  //       );
-  //     const isValid = loginUser(password, user?.userPass);
-  //     user["is_premium"] = hasActivePremiumSubscription ?? false;
-  //     if (isValid) return user;
-  //     else
-  //       throw new HttpException(
-  //         `Utilisateur ou mot de passe inconnu`,
-  //         HttpStatus.UNAUTHORIZED,
-  //       );
-  //   }
-  // }
-  // Generate a token with JwtService
   generateToken(user: UserLogin): string {
     const payload = { id: user.id, is_premium: user.is_premium };
     return this.jwtService.sign(payload);
