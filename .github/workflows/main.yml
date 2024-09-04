@@ -22,7 +22,7 @@ jobs:
         node-version: '16'  # Remplace par la version de Node.js que tu utilises
 
     - name: Build Docker image
-      run: docker build -t mamaz_yoga_back_api:latest .  # Construire l'image Docker
+      run: docker build -t api/mamaz_yoga_back_api:latest .  # Construire l'image Docker
 
 
     # Déploiement sur le serveur Hostinger
