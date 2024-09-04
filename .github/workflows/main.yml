@@ -16,15 +16,6 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '16'  # Remplace par la version de Node.js que tu utilises
-
-    - name: Build Docker image
-      run: docker build -t mamaz_yoga_back_api:latest ./api 
-
-
     # Déploiement sur le serveur Hostinger
     - name: Deploy to Hostinger Server
       env:
@@ -36,6 +27,7 @@ jobs:
         chmod 600 private_key                              # Fixe les permissions pour la clé
         ssh -i private_key -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP << 'EOF'
         cd /root/project/mamaz_yoga_back/mamaz_yoga_back 
+        git pull origin main
         sudo docker-compose down                           # Arrête les anciens conteneurs
         sudo docker-compose pull                           # Tire les dernières images si nécessaire
         sudo docker-compose up -d --build                  # Reconstruit et démarre les conteneurs en arrière-plan
