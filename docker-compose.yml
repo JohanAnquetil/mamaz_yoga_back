@@ -26,7 +26,7 @@ services:
     depends_on:
       - db
     volumes:
-      - ./api:/usr/src/app
+      #- ./api:/usr/src/app
       - /usr/src/app/node_modules
       - mamaz_yoga_back_videos:/usr/src/app/videos
 
