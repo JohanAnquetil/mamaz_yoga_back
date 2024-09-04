@@ -16,6 +16,12 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
+         # Étape de test
+    - name: Run tests
+      run: |
+        npm install
+        npm test
+
     # Déploiement sur le serveur Hostinger
     - name: Deploy to Hostinger Server
       env:
