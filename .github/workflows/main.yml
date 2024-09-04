@@ -21,9 +21,6 @@ jobs:
       with:
         node-version: '16'  # Remplace par la version de Node.js que tu utilises
 
-    - name: Install dependencies
-      run: npm ci  # Installation rapide et fiable des dépendances à partir de package-lock.json
-
     - name: Build Docker image
       run: docker build -t mamaz_yoga_back_api:latest .  # Construire l'image Docker
 
