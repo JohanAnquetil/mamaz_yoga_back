@@ -39,7 +39,7 @@ api/dist
 /videos/
 /wordpress/
 
+mamaz_yoga.sql
+
 # Ignore macOS system files
 .DS_Store
-
-mamaz_yoga.sql
