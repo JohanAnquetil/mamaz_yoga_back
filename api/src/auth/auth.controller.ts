@@ -33,7 +33,7 @@ export class AuthController {
     return {
       message: "L'authentification est validée",
       data: response,
-      token: token ?? undefined, // Use undefined if no token is generated because use hasn't a premium subscription.
+      token: token ?? undefined,
     };
   }
 }

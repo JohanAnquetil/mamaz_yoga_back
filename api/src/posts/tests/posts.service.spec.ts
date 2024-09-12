@@ -3,7 +3,7 @@ import { PostsService } from '../posts.service';
 import { PostNews } from '../entities/post-news.entity';
 import { Repository, EntityManager, UpdateResult, DeleteResult } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { NotFoundException, InternalServerErrorException } from '@nestjs/common';
+import { NotFoundException } from '@nestjs/common';
 import { CreatePostDto } from '../dto/create-post.dto';
 import { UpdatePostDto } from '../dto/update-post.dto';
 import { ElementorDataService } from '../utils/extract_elementor_data';

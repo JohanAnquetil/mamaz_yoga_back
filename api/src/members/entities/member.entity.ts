@@ -34,7 +34,7 @@ export class Member {
   arm_user_status!: number;
 
   @Column({ type: "int", nullable: false, default: 0 })
-  arm_secondary_status!: number; // Assurez-vous que ceci est un number
+  arm_secondary_status!: number;
 
   @Column({ type: "text", nullable: true })
   arm_user_plan_ids?: string;
