@@ -19,6 +19,7 @@ export class JwtAuthGuard extends AuthGuard("jwt") {
       throw err || new UnauthorizedException();
     }
 
+    // Need to check if it is a good idea
    // const userIdRequest = context.switchToHttp().getRequest().body.user_id;
 
     // if (!userIdRequest)
