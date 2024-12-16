@@ -34,7 +34,7 @@ export class UsersService {
     if (queryAllUsers) {
       queryAllUsers.map((user) => {
         users.push({
-          displayName: "Elsa",
+          displayName: user.userNicename,
           id: user.id,
           userLogin: user.userLogin,
           userNicename: "Elsa",

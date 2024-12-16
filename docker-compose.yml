@@ -3,7 +3,7 @@ services:
   db:
     image: mysql:latest
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     ports:
       - "3307:3306"
     volumes:
@@ -28,7 +28,7 @@ services:
     volumes:
       #- ./api:/usr/src/app
       - /usr/src/app/node_modules
-      - mamaz_yoga_back_videos:/usr/src/app/videos
+      - /Users/johqn/Documents/Developpement/projects/luluz_yoga/videos:/usr/src/app/videos
 
 volumes:
   dbdata:

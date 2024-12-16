@@ -4,199 +4,144 @@ import * as fs from 'fs';
 import * as path from 'path';
 import ffprobe from 'ffprobe';
 import ffprobeStatic from 'ffprobe-static';
-
-function formatDuration(seconds: number): string {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = Math.floor(seconds % 60);
-    return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
-  }
+import { InjectRepository } from '@nestjs/typeorm';
+import { User } from '@app/users/entities/user.entity';
+import { Repository } from 'typeorm';
+import { VideoCategory } from './entities/categories.entity';
+import { VideoDescription } from './entities/videos_description.entity';
+import { VideoHistory } from './entities/historic.entity';
 
 @Injectable()
 export class VideosService {
+  constructor(
+    @InjectRepository(VideoCategory)
+    private readonly categoryRepository: Repository<VideoCategory>,
 
-  private readonly videosPath = path.resolve(__dirname, '..', '..', 'videos');
+    @InjectRepository(VideoDescription)
+    private readonly videoDescriptionRepository: Repository<VideoDescription>,
 
- async getVideoDuration(videoPath: string): Promise<number> {
-    try {
-      const info = await ffprobe(videoPath, { path: ffprobeStatic.path });
-      const duration = parseFloat(info.streams[0]?.duration ?? '0');
-      return duration;
-    } catch (error) {
-      console.error('Error retrieving video duration:', error);
-      return 0;
-    }
+    @InjectRepository(VideoHistory)
+    private readonly videoHistoryRepository: Repository<VideoHistory>,
+
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+  ) {}
+
+  async getCategories() {
+    return this.categoryRepository.find();
   }
 
-  async getVideosInCategory(
-    category: string,
-    page: number = 1,
-    limit: number = 10
-  ): Promise<{ videos: Array<{ name: string, category: string, formattedDuration: string }>, total: number }> {
-    const categoryPath = path.join(this.videosPath, category);
-    try {
-      const files = fs.readdirSync(categoryPath)
-        .filter(file => this.isVideoFile(file));
-      
-      const total = files.length; // Nombre total de vidéos dans la catégorie
-      const startIndex = (page - 1) * limit; // Détermine l'index de début en fonction de la page et de la limite
-      const paginatedFiles = files.slice(startIndex, startIndex + limit); // Sélectionne les fichiers pour la page actuelle
-  
-      const videoPromises = paginatedFiles.map(async (file) => {
-        const videoPath = path.join(categoryPath, file);
-        const durationInSeconds = await this.getVideoDuration(videoPath);
-        const formattedDuration = formatDuration(durationInSeconds);
-        return { name: file, category, formattedDuration };
-      });
-  
-      const videos = await Promise.all(videoPromises); // Attend que toutes les promesses soient résolues
-      return { videos, total }; // Retourne les vidéos paginées et le nombre total
-    } catch (error) {
-      console.error('Error reading category directory:', error);
-      return { videos: [], total: 0 }; // En cas d'erreur, retourne un tableau vide et un total de 0
-    }
-  }
 
-  getVideosPath(): string {
-    return this.videosPath;
-  }
-
-  async getCategories(): Promise<Array<{ name: string, videoCount: number }>>  {
-    try {
-      const directories = fs.readdirSync(this.videosPath, { withFileTypes: true })
-        .filter(dirent => dirent.isDirectory())
-        .map(async (dirent) => {
-          const videoFiles = await this.getVideosInCategory(dirent.name);
-        return { name: dirent.name, videoCount: videoFiles.videos.length }
-        });
-  
-      return Promise.all(directories);
-    } catch (error) {
-      console.error('Error reading video directory:', error);
-      return [];
-    }
-  }
-
-  async renameCategory(category: string, newName: string): Promise<String> {
-    const categoryPath = path.join(this.videosPath, category);
-    const newCategoryPath = path.join(this.videosPath, newName);
-    if (fs.existsSync(categoryPath)) {
-      fs.renameSync(categoryPath, newCategoryPath);
-      return `le nom de la vidéo ${category} a été renommé en ${newName}`
-    } else {
-      throw new HttpException('Category not found', HttpStatus.NOT_FOUND);
-    }
-  }
-    async deleteCategory(category: string): Promise<String> {
-        const categoryPath = path.join(this.videosPath, category);
-        if (fs.existsSync(categoryPath)) {
-          fs.rmdirSync(categoryPath, { recursive: true });
-          return `La catégorie ${category} a été effacée`
-        } else {
-          throw new HttpException('Category not found', HttpStatus.NOT_FOUND);
-        }
-      }
-
-    // async getVideosInCategory(category: string): Promise<Array<{ name: string, category: string, formattedDuration: any }>> {
-    //     const categoryPath = path.join(this.videosPath, category);
-    //     try {
-    //       const files = fs.readdirSync(categoryPath)
-    //         .filter(file => this.isVideoFile(file));
-      
-    //       const videoPromises = files.map(async (file) => {
-    //         const videoPath = path.join(categoryPath, file);
-    //         const durationInSeconds = await this.getVideoDuration(videoPath);
-    //         const formattedDuration = formatDuration(durationInSeconds);
-    //         return { name: file, category, formattedDuration };
-    //       });
-      
-    //       return Promise.all(videoPromises);
-    //     } catch (error) {
-    //       console.error('Error reading category directory:', error);
-    //       return [];
-    //     }
-    //   }
-
-
-      
-   
-    async renameVideo(category: string, video: string, newName: string): Promise<string> {
-        const videoPath = path.join(this.videosPath, category, video);
-        const fileExtension = path.extname(video);
-        const newVideoPath = path.join(this.videosPath, category, `${newName}${fileExtension}`);
-      
-        if (fs.existsSync(videoPath)) {
-          fs.renameSync(videoPath, newVideoPath);
-          return `La vidéo '${video}' dans la catégorie '${category}' a été renommée en '${newName}${fileExtension}'`;
-        } else {
-          throw new HttpException('Video not found', HttpStatus.NOT_FOUND);
-        }
-      }
-
-      async deleteVideo(category: string, video: string): Promise<String> {
-        const videoPath = path.join(this.videosPath, category, video);
-        if (fs.existsSync(videoPath)) {
-          fs.unlinkSync(videoPath);
-          return `La vidéo ${video} a été effacée`
-        } else {
-          throw new HttpException('Video not found', HttpStatus.NOT_FOUND);
-        }
-      }
-      
+  //       async downloadVideo(category: string, video: string, res: Response): Promise<void> {
+  //   const videoPath = path.join(this.videosPath, category, video);
     
-      private isVideoFile(file: string): boolean {
-        const videoExtensions = ['.mp4', '.mkv', '.avi']; // Ajouter d'autres extensions si nécessaire
-        return videoExtensions.includes(path.extname(file).toLowerCase());
-      }
-
-        async downloadVideo(category: string, video: string, res: Response): Promise<void> {
-    const videoPath = path.join(this.videosPath, category, video);
-    
-    if (fs.existsSync(videoPath)) {
-      res.download(videoPath, video, (err) => {
-        if (err) {
-          throw new HttpException('Error downloading the video', HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-      });
-    } else {
-      throw new HttpException('Video not found', HttpStatus.NOT_FOUND);
-    }
-  }
-  async searchVideos(query: string): Promise<Array<{ category: string, name: string }>> {
-    const categories = fs.readdirSync(this.videosPath, { withFileTypes: true })
-      .filter(dirent => dirent.isDirectory())
-      .map(dirent => dirent.name);
-  
-    let results: Array<{ category: string, name: string }> = [];
-  
-    for (const category of categories) {
-      const categoryPath = path.join(this.videosPath, category);
-      const files = fs.readdirSync(categoryPath, { withFileTypes: true })
-        .filter(file => this.isVideoFile(file.name) && file.name.toLowerCase().includes(query.toLowerCase()));
-  
-      results = results.concat(files.map(file => ({ category, name: file.name })));
-    }
-  
-    return results;
-  }
-  
+  //   if (fs.existsSync(videoPath)) {
+  //     res.download(videoPath, video, (err) => {
+  //       if (err) {
+  //         throw new HttpException('Error downloading the video', HttpStatus.INTERNAL_SERVER_ERROR);
+  //       }
+  //     });
+  //   } else {
+  //     throw new HttpException('Video not found', HttpStatus.NOT_FOUND);
+  //   }
+  // }
   // async searchVideos(query: string): Promise<Array<{ category: string, name: string }>> {
   //   const categories = fs.readdirSync(this.videosPath, { withFileTypes: true })
   //     .filter(dirent => dirent.isDirectory())
   //     .map(dirent => dirent.name);
   
-  //   // Déclaration de `results` avec un type explicite
   //   let results: Array<{ category: string, name: string }> = [];
   
   //   for (const category of categories) {
   //     const categoryPath = path.join(this.videosPath, category);
   //     const files = fs.readdirSync(categoryPath, { withFileTypes: true })
-  //     .filter(file => this.isVideoFile(file) && file.toLowerCase().includes(query.toLowerCase()));
+  //       .filter(file => this.isVideoFile(file.name) && file.name.toLowerCase().includes(query.toLowerCase()));
   
-  //     results = results.concat(files.map(file => ({ category, name: file })));
+  //     results = results.concat(files.map(file => ({ category, name: file.name })));
   //   }
   
   //   return results;
   // }
-  
+
+  async recordVideoWatched(data: { userId: number; videoId: number; date: string, viewingTime?: number }): Promise<VideoHistory> {
+    try {
+      console.log(data);
+      const record = this.videoHistoryRepository.create({
+        user: { id: data.userId } as User,
+        video: { id: data.videoId } as VideoDescription,
+        date: new Date(data.date),
+        viewingTime: data.viewingTime ?? 10,
+      });
+
+      console.log('Record to save:', record);
+
+      // Sauvegarde dans la base de données
+      return await this.videoHistoryRepository.save(record);
+    } catch (error) {
+      console.error('Error saving video watch record:', error);
+      throw new HttpException(
+        'Could not record video watch. Please try again.',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async fetchHistoric() {
+    const allHistoric = await this.videoHistoryRepository.find()
+
+    if (allHistoric.length > 0) {
+      return {
+        message: "L'historique a été trouvé",
+        data: allHistoric,
+      }
+    }
+    else {
+      return "Aucun historique trouvé"
+    }
+  }
+
+  async findOneHistoric(id: number) {
+    try {
+      const userHistoric = await this.videoHistoryRepository
+      .createQueryBuilder("videoHistoric")
+      .leftJoinAndSelect("videoHistoric.video", "video")
+      .leftJoinAndSelect("videoHistoric.user", "user")
+      .select([
+        "videoHistoric.id",
+        "videoHistoric.date",
+        "videoHistoric.viewingTime",
+        "user.id",
+        "video.id",
+      ])
+      .where("videoHistoric.user = :userId", {userId : id})
+      .getMany();
+
+      return {
+        message: "données reçues", 
+        data: userHistoric,
+      }
+    }
+    catch(error) {
+      return error
+    }
+  }
+
+  async getVideo(id: number) {
+    try {
+      const videoPath = await this.videoDescriptionRepository
+      .createQueryBuilder("videoDescription")
+      .select("videoDescription.path")
+      .where("videoDescription.id = :id", { id: id })
+      .getOne();
+
+      console.log("in get video service")
+      console.log(`/usr/src/app/videos/${videoPath?.path}`)
+      // return `/usr/src/app/videos/${videoPath}`
+
+      return `/usr/src/app/videos/${videoPath?.path}`
+    } catch (error) {
+      return error
+    }
+  }
 
 }

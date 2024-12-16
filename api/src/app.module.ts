@@ -10,6 +10,7 @@ import { SubscriptionPlansModule } from "./subscription_plans/subscription_plans
 import { AuthModule } from "./auth/auth.module";
 import { VideosModule } from './videos/videos.module';
 import { VideosService } from './videos/videos.service';
+import { User } from "./users/entities/user.entity";
 
 @Module({
   imports: [
@@ -24,8 +25,7 @@ import { VideosService } from './videos/videos.service';
     AuthModule,
     VideosModule,
   ],
-
-  providers: [VideosService],
+  //providers: [VideosService],
   controllers: [],
 })
 export class AppModule {}
