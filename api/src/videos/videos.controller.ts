@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Res, HttpException, HttpStatus, Delete, Put, Body, Query, UseGuards, Post, ParseIntPipe, NotFoundException } from '@nestjs/common';
+import { Controller, Get, Param, Res, HttpException, HttpStatus, Delete, Put, Body, Query, UseGuards, Post, ParseIntPipe, NotFoundException, SetMetadata } from '@nestjs/common';
 import { VideosService } from './videos.service';
 import { Response } from 'express';
 import * as path from 'path';
@@ -6,7 +6,7 @@ import * as fs from 'fs';
 import { JwtAuthGuard } from '@app/auth/guards/jwt.guards';
 
 @Controller('videos')
-//@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard)
 export class VideosController {
   constructor(private readonly videosService: VideosService) {}
 
@@ -53,10 +53,10 @@ export class VideosController {
 
     console.log({fileSize})
 
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Range');
-    res.setHeader('Accept-Ranges', 'bytes');
+    // res.setHeader('Access-Control-Allow-Origin', '*');
+    // res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
+    // res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Range');
+    // res.setHeader('Accept-Ranges', 'bytes');
 
     if (range) {
       const parts = range.replace(/bytes=/, "").split("-");
@@ -173,6 +173,7 @@ async getVideosDetails(@Param("id", ParseIntPipe) id: number,){
 }
 
 @Get('thumbnails/:category/:filename')
+@SetMetadata('isPublic', true)
 serveThumbnail(
   @Param('category') category: string,
   @Param('filename') filename: string,
@@ -192,9 +193,9 @@ serveThumbnail(
     throw new HttpException('Thumbnail non trouvé', HttpStatus.NOT_FOUND);
   }
 
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  // res.setHeader('Access-Control-Allow-Origin', '*');
+  // res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
+  // res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   // Retourne l'image si elle existe
   return res.sendFile(thumbnailPath);
