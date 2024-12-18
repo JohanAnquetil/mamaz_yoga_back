@@ -39,7 +39,7 @@ export class VideosController {
 
 
   @Get('watch-video/:video')
-  //@UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   async streamVideo(@Param('video', ParseIntPipe) videoId: number, @Res() res: Response) {
     // const videoPath: any = await this.videosService.getVideosPath(category, video);
     const videoPath: any = await this.videosService.getVideo(videoId)
