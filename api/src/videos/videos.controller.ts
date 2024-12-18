@@ -6,16 +6,17 @@ import * as fs from 'fs';
 import { JwtAuthGuard } from '@app/auth/guards/jwt.guards';
 
 @Controller('videos')
-@UseGuards(JwtAuthGuard)
 export class VideosController {
   constructor(private readonly videosService: VideosService) {}
 
   @Get('categories')
+  @UseGuards(JwtAuthGuard)
   getCategories() {
     return this.videosService.getCategories();
   }
 
-  @Get('categories/:id') 
+  @Get('categories/:id')
+  @UseGuards(JwtAuthGuard)
   async fetchCategoryVideosDetails(@Param("id", ParseIntPipe) id: number) {
     try {
       const categoryVideoDetails = await this.videosService.getCategoryDetails(id)
@@ -38,6 +39,7 @@ export class VideosController {
 
 
   @Get('watch-video/:video')
+  @UseGuards(JwtAuthGuard)
   async streamVideo(@Param('video', ParseIntPipe) videoId: number, @Res() res: Response) {
     // const videoPath: any = await this.videosService.getVideosPath(category, video);
     const videoPath: any = await this.videosService.getVideo(videoId)
@@ -115,6 +117,7 @@ export class VideosController {
 // }
 
 @Post('record-video')
+@UseGuards(JwtAuthGuard)
 async recordVideoWatchedByUser(
   @Body() data: { userId: number; videoId: number; date: string, viewingTime: number },
 ) {
@@ -138,11 +141,13 @@ async recordVideoWatchedByUser(
 }
 
 @Get('fetch-historic')
+@UseGuards(JwtAuthGuard)
 async fetchHistoric() {
   return await this.videosService.fetchHistoric();
 }
 
 @Get('fetch-historic/:id')
+@UseGuards(JwtAuthGuard)
 async findOneHistoric(@Param("id", ParseIntPipe) id: number,){
   try {
     const historic = await this.videosService.findOneHistoric(id);
@@ -158,6 +163,7 @@ async findOneHistoric(@Param("id", ParseIntPipe) id: number,){
 }
 
 @Get('get-videos-details/:id')
+@UseGuards(JwtAuthGuard)
 async getVideosDetails(@Param("id", ParseIntPipe) id: number,){
   try {
     const videoDetails = await this.videosService.getVideosDetails(id);
@@ -173,7 +179,6 @@ async getVideosDetails(@Param("id", ParseIntPipe) id: number,){
 }
 
 @Get('thumbnails/:category/:filename')
-@SetMetadata('isPublic', true)
 serveThumbnail(
   @Param('category') category: string,
   @Param('filename') filename: string,
