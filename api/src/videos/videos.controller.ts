@@ -6,7 +6,7 @@ import * as fs from 'fs';
 import { JwtAuthGuard } from '@app/auth/guards/jwt.guards';
 
 @Controller('videos')
-//@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard)
 export class VideosController {
   constructor(private readonly videosService: VideosService) {}
 
@@ -187,9 +187,9 @@ serveThumbnail(
     throw new HttpException('Thumbnail non trouvé', HttpStatus.NOT_FOUND);
   }
 
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  // res.setHeader('Access-Control-Allow-Origin', '*');
+  // res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
+  // res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   // Retourne l'image si elle existe
   return res.sendFile(thumbnailPath);
