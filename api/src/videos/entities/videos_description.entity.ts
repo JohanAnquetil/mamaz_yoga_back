@@ -32,4 +32,12 @@ export class VideoDescription {
   @OneToMany(() => VideoHistory, (videoHistory) => videoHistory.video)
   videoHistories!: VideoHistory[];
 
+  get fullThumbnailPath(): string {
+    return `/usr/src/app/videos/${this.thumbnail}`;
+  }
+
+  get fullVideoPath(): string {
+    return `/usr/src/app/videos/${this.path}`;
+  }
+
 }

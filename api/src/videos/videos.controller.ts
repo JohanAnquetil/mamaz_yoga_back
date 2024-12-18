@@ -6,14 +6,28 @@ import * as fs from 'fs';
 import { JwtAuthGuard } from '@app/auth/guards/jwt.guards';
 
 @Controller('videos')
-@UseGuards(JwtAuthGuard)
+//@UseGuards(JwtAuthGuard)
 export class VideosController {
   constructor(private readonly videosService: VideosService) {}
 
   @Get('categories')
   getCategories() {
-    console.log('getCategories() a été appelée');
     return this.videosService.getCategories();
+  }
+
+  @Get('categories/:id') 
+  async fetchCategoryVideosDetails(@Param("id", ParseIntPipe) id: number) {
+    try {
+      const categoryVideoDetails = await this.videosService.getCategoryDetails(id)
+      if(!categoryVideoDetails) {
+        throw new NotFoundException(`La catégorie avec l'id : ${id} n'existe pas`);
+      }
+      return categoryVideoDetails;
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+    }
+  }
   }
 
 //  @Get('watch-video/:video')
@@ -128,7 +142,7 @@ async findOneHistoric(@Param("id", ParseIntPipe) id: number,){
   try {
     const historic = await this.videosService.findOneHistoric(id);
     if(!historic) {
-      throw new NotFoundException(`L'historique avec l'id de l'utilisateur: ${id} n'existe pas`);
+      throw new NotFoundException(`L'historique de la vidéo avec l'id : ${id} n'existe pas`);
     }
     return historic
   } catch (error) {
@@ -137,4 +151,44 @@ async findOneHistoric(@Param("id", ParseIntPipe) id: number,){
     }
   }
 }
+
+@Get('get-videos-details/:id')
+async getVideosDetails(@Param("id", ParseIntPipe) id: number,){
+  try {
+    const videoDetails = await this.videosService.getVideosDetails(id);
+    if(!videoDetails) {
+      throw new NotFoundException(`La video avec l'id: ${id} n'existe pas`);
+    }
+    return videoDetails
+  } catch (error) {
+    if (error instanceof HttpException) {
+      throw error;
+    }
+  }
+}
+
+@Get('thumbnails/:category/:filename')
+serveThumbnail(
+  @Param('category') category: string,
+  @Param('filename') filename: string,
+  @Res() res: Response,
+) {
+  // Chemin complet vers le dossier des thumbnails
+  const thumbnailPath = path.join(
+    '/usr/src/app/videos',
+    category,
+    filename,
+  );
+
+  console.log('Serving thumbnail:', thumbnailPath);
+
+  // Vérifie si le fichier existe
+  if (!fs.existsSync(thumbnailPath)) {
+    throw new HttpException('Thumbnail non trouvé', HttpStatus.NOT_FOUND);
+  }
+
+  // Retourne l'image si elle existe
+  return res.sendFile(thumbnailPath);
+}
+
 }

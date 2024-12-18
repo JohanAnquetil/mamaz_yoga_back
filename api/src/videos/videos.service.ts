@@ -1,9 +1,4 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
-import { Response } from 'express';
-import * as fs from 'fs';
-import * as path from 'path';
-import ffprobe from 'ffprobe';
-import ffprobeStatic from 'ffprobe-static';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '@app/users/entities/user.entity';
 import { Repository } from 'typeorm';
@@ -31,6 +26,24 @@ export class VideosService {
     return this.categoryRepository.find();
   }
 
+  // async getCategoryDetails(id: number) {
+
+  //   console.log({id});
+  //   try {
+  //     const categoryVideoDetails = await this.categoryRepository
+  //     .createQueryBuilder("category")
+  //     .leftJoinAndSelect("category.videoDescriptions", "videoDescription")
+  //     .where("category.id = :id", { id: id })
+  //     //.select(["videoDescription.id"])
+  //     .getOne();
+
+  //     console.log({categoryVideoDetails})
+
+  //     return categoryVideoDetails
+  //   } catch (error) {
+  //     return error
+  //   }
+  // }
 
   //       async downloadVideo(category: string, video: string, res: Response): Promise<void> {
   //   const videoPath = path.join(this.videosPath, category, video);
@@ -62,6 +75,42 @@ export class VideosService {
   
   //   return results;
   // }
+
+  async getCategoryDetails(id: number) {
+    try {
+      const categoryVideoDetails = await this.categoryRepository
+        .createQueryBuilder("category")
+        .leftJoinAndSelect("category.videoDescriptions", "videoDescription")
+        .where("category.id = :id", { id })
+        .getOne();
+  
+      if (!categoryVideoDetails) {
+        throw new Error(`Category with id ${id} not found`);
+      }
+  
+      // Remplacer path et thumbnail par les getters dans videoDescriptions
+      const transformedVideoDescriptions = categoryVideoDetails.videoDescriptions.map(
+        (video) => ({
+          id: video.id,
+          name: video.name,
+          isFreeVideo: video.isFreeVideo,
+          lenght: video.lenght,
+          date: video.date,
+          path: video.fullVideoPath, // Utilise le getter pour fullVideoPath
+          thumbnail: video.thumbnail, // Utilise le getter pour fullThumbnailPath
+        })
+      );
+  
+      return {
+        id: categoryVideoDetails.id,
+        category: categoryVideoDetails.category,
+        videoDescriptions: transformedVideoDescriptions, // Liste modifiée
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+  
 
   async recordVideoWatched(data: { userId: number; videoId: number; date: string, viewingTime?: number }): Promise<VideoHistory> {
     try {
@@ -144,4 +193,80 @@ export class VideosService {
     }
   }
 
+  async getVideosDetails(id: number) {
+    try {
+      const videoDetails = await this.videoDescriptionRepository
+        .createQueryBuilder('videoDescription')
+        .where('videoDescription.id = :id', { id })
+        .select([
+          "videoDescription.id",
+          "videoDescription.name",
+          "videoDescription.isFreeVideo",
+          "videoDescription.date",
+          "videoDescription.lenght",
+          "videoDescription.path",
+          "videoDescription.thumbnail",
+        ])
+        .getOne();
+  
+      if (videoDetails) {
+        return {
+          id: videoDetails.id,
+          name: videoDetails.name,
+          isFreeVideo: videoDetails.isFreeVideo,
+          date: videoDetails.date,
+          lenght: videoDetails.lenght,
+          thumbnail: videoDetails.thumbnail,
+          path: videoDetails.path,
+        };
+      } else {
+        throw new Error('Video not found');
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
+  
+
+  // async getVideosDetails(id: number) {
+  //   try {
+  //     const videoDetails = await this.videoDescriptionRepository
+  //     .createQueryBuilder("videoDescription")
+  //     .where("videoDescription.id = :id", { id: id })
+  //     .getOne();
+
+  //     // return `/usr/src/app/videos/${videoPath}`
+
+  //     return videoDetails
+  //   } catch (error) {
+  //     return error
+  //   }
+  // }
+  // async getVideosDetails(id: number) {
+  //   try {
+  //     const videoDetails = await this.videoDescriptionRepository
+  //       .createQueryBuilder('videoDescription')
+  //       .where('videoDescription.id = :id', { id })
+  //       .select([
+  //         "videoDescription.id",
+  //         "videoDescription.name",
+  //         "videoDescription.isFreeVideo",
+  //         "videoDescription.date",
+  //         "videoDescription.lenght"
+  //       ])
+  //       .getOne();
+  
+  //     if (videoDetails) {
+  //       return {
+  //         ...videoDetails,
+  //         thumbnailPath: videoDetails.fullThumbnailPath,
+  //         videoPath: videoDetails.fullVideoPath,
+  //       };
+  //     } else {
+  //       throw new Error('Video not found');
+  //     }
+  //   } catch (error) {
+  //     throw error;
+  //   }
+  // }
 }

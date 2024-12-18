@@ -1,0 +1,48 @@
+version: "3"
+services:
+  db:
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_DATABASE}
+    ports:
+      - "3307:3306"
+    volumes:
+      - dbdata:/var/lib/mysql
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    environment:
+      PMA_HOST: db
+    ports:
+      - "8080:80"
+  api:
+    build: ./api
+    ports:
+      - "3000:3000"
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_USER: ${DB_USER}
+      DB_PASS: ${MYSQL_ROOT_PASSWORD}
+      DB_NAME: ${MYSQL_DATABASE}
+    depends_on:
+      - db
+    volumes:
+      #- ./api:/usr/src/app
+      - /usr/src/app/node_modules
+      - mamaz_yoga_back_videos:/usr/src/app/videos
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf # Fichier de configuration Nginx
+      - /etc/letsencrypt:/etc/letsencrypt # Certificats SSL
+      - /dev/null:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - api
+
+volumes:
+  dbdata:
+  mamaz_yoga_back_videos:
+
+
