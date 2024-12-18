@@ -6,7 +6,7 @@ import * as fs from 'fs';
 import { JwtAuthGuard } from '@app/auth/guards/jwt.guards';
 
 @Controller('videos')
-//@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard)
 export class VideosController {
   constructor(private readonly videosService: VideosService) {}
 

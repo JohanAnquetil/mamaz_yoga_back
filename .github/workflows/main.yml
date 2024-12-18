@@ -1,3 +1,88 @@
+# name: CI/CD Pipeline
+
+# on:
+#   push:
+#     branches:
+#       - main
+#   pull_request:
+#     branches:
+#       - main
+
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
+
+#     steps:
+#     - name: Checkout repository
+#       uses: actions/checkout@v3
+
+
+#     # Déploiement sur le serveur Hostinger
+#     - name: Deploy to Hostinger Server
+#       env:
+#         SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}   # Clé SSH privée pour Hostinger
+#         SERVER_IP: ${{ secrets.SERVER_IP }}               # IP du serveur Hostinger
+#         SERVER_USER: "root"                               # Utilisateur SSH (à adapter si nécessaire)
+#       run: |
+#         echo "$SSH_PRIVATE_KEY" > private_key              # Crée un fichier temporaire pour la clé privée
+#         chmod 600 private_key                              # Fixe les permissions pour la clé
+#         ssh -i private_key -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP << 'EOF'
+#         cd /root/project/mamaz_yoga_back/mamaz_yoga_back 
+#         git pull origin main
+#         sudo docker-compose down                           # Arrête les anciens conteneurs
+#         sudo docker-compose pull                           # Tire les dernières images si nécessaire
+#         sudo docker-compose up -d --build                  # Reconstruit et démarre les conteneurs en arrière-plan
+#         EOF
+# # name: CI/CD Pipeline
+
+# # on:
+# #   push:
+# #     branches:
+# #       - main
+# #   pull_request:
+# #     branches:
+# #       - main
+
+# # jobs:
+# #   deploy:
+# #     runs-on: ubuntu-latest
+# #     container:
+# #       image: docker/compose:latest 
+
+# #     steps:
+# #     - name: Checkout repository
+# #       uses: actions/checkout@v3
+
+# #     # Construire et démarrer tous les services définis dans docker-compose.yml
+# #     - name: Build and Start Services with Docker Compose
+# #       run: docker-compose -f docker-compose.yml up -d --build  # Construit et démarre tous les conteneurs
+
+# #     # Exécuter les tests à l'intérieur du conteneur API avec Docker Compose
+# #     - name: Run Unit Tests in Docker container
+# #       run: docker-compose exec api npm run test  # Exécute les tests dans le conteneur API
+
+# #     # Arrêter et supprimer les conteneurs après les tests
+# #     - name: Stop and remove Docker containers
+# #       run: docker-compose down
+
+# #     # Déploiement sur le serveur Hostinger
+# #     - name: Deploy to Hostinger Server
+# #       if: success()  # Déploiement uniquement si les tests passent
+# #       env:
+# #         SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}   # Clé SSH privée pour Hostinger
+# #         SERVER_IP: ${{ secrets.SERVER_IP }}               # IP du serveur Hostinger
+# #         SERVER_USER: "root"                               # Utilisateur SSH
+# #       run: |
+# #         echo "$SSH_PRIVATE_KEY" > private_key              # Crée un fichier temporaire pour la clé privée
+# #         chmod 600 private_key                              # Fixe les permissions pour la clé
+# #         ssh -i private_key -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP << 'EOF'
+# #         cd /root/project/mamaz_yoga_back/mamaz_yoga_back 
+# #         git pull origin main
+# #         sudo docker-compose down                           # Arrête les anciens conteneurs
+# #         sudo docker-compose pull                           # Tire les dernières images si nécessaire
+# #         sudo docker-compose up -d                          # Reconstruit et démarre les conteneurs en arrière-plan
+# #         EOF
+
 name: CI/CD Pipeline
 
 on:
@@ -29,9 +114,9 @@ jobs:
         ssh -i private_key -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP << 'EOF'
         cd /root/project/mamaz_yoga_back/mamaz_yoga_back 
         git pull origin main
-        sudo docker-compose down                           # Arrête les anciens conteneurs
-        sudo docker-compose pull                           # Tire les dernières images si nécessaire
-        sudo docker-compose up -d --build                  # Reconstruit et démarre les conteneurs en arrière-plan
+        sudo docker compose -f docker-compose.prod.yml down
+        sudo docker compose -f docker-compose.prod.yml pull
+        sudo docker compose -f docker-compose.prod.yml up -d --build
         EOF
 # name: CI/CD Pipeline
 
