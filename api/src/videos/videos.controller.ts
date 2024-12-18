@@ -53,6 +53,11 @@ export class VideosController {
 
     console.log({fileSize})
 
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Range');
+    res.setHeader('Accept-Ranges', 'bytes');
+
     if (range) {
       const parts = range.replace(/bytes=/, "").split("-");
       const start = parseInt(parts[0], 10);
@@ -187,9 +192,9 @@ serveThumbnail(
     throw new HttpException('Thumbnail non trouvé', HttpStatus.NOT_FOUND);
   }
 
-  // res.setHeader('Access-Control-Allow-Origin', '*');
-  // res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
-  // res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   // Retourne l'image si elle existe
   return res.sendFile(thumbnailPath);
