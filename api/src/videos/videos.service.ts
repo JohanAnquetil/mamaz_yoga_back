@@ -98,7 +98,7 @@ export class VideosService {
           lenght: video.lenght,
           date: video.date,
           path: video.fullVideoPath,
-          thumbnail: "/video.thumbnail",
+          thumbnail: video.thumbnail,
         })
       );
   
