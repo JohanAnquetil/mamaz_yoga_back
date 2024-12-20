@@ -92,8 +92,8 @@ export class VideosService {
       const transformedVideoDescriptions = categoryVideoDetails.videoDescriptions.map(
         (video) => ({
           id: video.id,
-          categoryId: video.category.id ?? categoryVideoDetails.category,
-          name: video.name,
+          categoryId: categoryVideoDetails.id,
+          categoryName: categoryVideoDetails.category,
           isFreeVideo: video.isFreeVideo,
           lenght: video.lenght,
           date: video.date,
@@ -105,7 +105,7 @@ export class VideosService {
       return {
         id: categoryVideoDetails.id,
         category: categoryVideoDetails.category,
-        videoDescriptions: transformedVideoDescriptions, // Liste modifiée
+        videoDescriptions: transformedVideoDescriptions,
       };
     } catch (error) {
       throw error;
