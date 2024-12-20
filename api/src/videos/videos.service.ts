@@ -92,12 +92,13 @@ export class VideosService {
       const transformedVideoDescriptions = categoryVideoDetails.videoDescriptions.map(
         (video) => ({
           id: video.id,
+          category: video.category,
           name: video.name,
           isFreeVideo: video.isFreeVideo,
           lenght: video.lenght,
           date: video.date,
-          path: video.fullVideoPath, // Utilise le getter pour fullVideoPath
-          thumbnail: video.thumbnail, // Utilise le getter pour fullThumbnailPath
+          path: video.fullVideoPath,
+          thumbnail: video.thumbnail,
         })
       );
   
