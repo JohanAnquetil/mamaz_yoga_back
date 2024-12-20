@@ -98,7 +98,7 @@ export class VideosService {
           lenght: video.lenght,
           date: video.date,
           path: video.fullVideoPath,
-          thumbnail: video.thumbnail,
+          thumbnail: "/video.thumbnail",
         })
       );
   
@@ -201,6 +201,7 @@ export class VideosService {
         .where('videoDescription.id = :id', { id })
         .select([
           "videoDescription.id",
+          "videoDescription.category",
           "videoDescription.name",
           "videoDescription.isFreeVideo",
           "videoDescription.date",
@@ -219,6 +220,7 @@ export class VideosService {
           lenght: videoDetails.lenght,
           thumbnail: videoDetails.thumbnail,
           path: videoDetails.path,
+          category: videoDetails.category,
         };
       } else {
         throw new Error('Video not found');
