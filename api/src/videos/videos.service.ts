@@ -92,7 +92,7 @@ export class VideosService {
       const transformedVideoDescriptions = categoryVideoDetails.videoDescriptions.map(
         (video) => ({
           id: video.id,
-          category: video.category,
+          categoryId: video.category.id ?? categoryVideoDetails.category,
           name: video.name,
           isFreeVideo: video.isFreeVideo,
           lenght: video.lenght,
