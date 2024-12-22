@@ -239,17 +239,11 @@ export class VideosService {
     try {
       const userHistoric = await this.videoHistoryRepository
         .createQueryBuilder("history")
-        .leftJoinAndSelect("history.videoEntity", "video")
+        .leftJoinAndSelect("history.videoEntity", "videoEntity")
         .leftJoinAndSelect("history.userEntity", "user")
         .select([
-          "history.video",
-          "history.user",
-          "history.date",
-          "history.viewing_time_in_minutes",
-          "video.id",
-          "video.name",
-          "video.thumbnail",
-          "user"
+          "history",
+          "videoEntity",
         ])
         .where("history.user = :userId", {userId: id})
         .getMany();
