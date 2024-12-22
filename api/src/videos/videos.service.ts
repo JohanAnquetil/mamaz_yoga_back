@@ -76,15 +76,37 @@ export class VideosService {
   //   return results;
   // }
 
+    // async findAll() {
+    //   const allVideos = await this.videoDescriptionRepository.find();
+    //   if (allVideos.length > 0) {
+    //     return {
+    //       message: "Des vidéos ont été trouvées",
+    //       data: allVideos,
+    //     };
+    //   } else {
+    //     return "Aucune vidéo trouvée  ";
+    //   }
+    // }
+
     async findAll() {
-      const allVideos = await this.videoDescriptionRepository.find();
+      const allVideos = await this.videoDescriptionRepository
+        .createQueryBuilder('video')
+        .leftJoinAndSelect('video.category', 'category')
+        .getMany();
+    
       if (allVideos.length > 0) {
+        const videosWithCategory = allVideos.map(video => ({
+          ...video,
+          categoryId: video.category?.id,
+          categoryName: video.category?.category
+        }));
+    
         return {
           message: "Des vidéos ont été trouvées",
-          data: allVideos,
+          data: videosWithCategory
         };
       } else {
-        return "Aucune vidéo trouvée  ";
+        return "Aucune vidéo trouvée";
       }
     }
 
