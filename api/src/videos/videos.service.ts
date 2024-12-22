@@ -238,29 +238,31 @@ export class VideosService {
   async findOneHistoric(id: number) {
     try {
       const userHistoric = await this.videoHistoryRepository
-      .createQueryBuilder("videoHistoric")
-      .leftJoinAndSelect("videoHistoric.video", "video")
-      .leftJoinAndSelect("videoHistoric.user", "user")
-      .select([
-        "videoHistoric.date",
-        "videoHistoric.viewingTime",
-        "user.id",
-        "video.id",
-        "video.name",
-        "video.thumbnail"
-      ])
-      .where("videoHistoric.user = :userId", {userId : id})
-      .getMany();
+        .createQueryBuilder("history")
+        .leftJoinAndSelect("history.videoEntity", "video")
+        .leftJoinAndSelect("history.userEntity", "user")
+        .select([
+          "history.video",
+          "history.user",
+          "history.date",
+          "history.viewing_time_in_minutes",
+          "video.id",
+          "video.name",
+          "video.thumbnail",
+          "user"
+        ])
+        .where("history.user = :userId", {userId: id})
+        .getMany();
 
       return {
-        message: "données reçues", 
-        data: userHistoric,
-      }
+        message: "données reçues",
+        data: userHistoric
+      };
     }
     catch(error) {
-      return error
+      throw error;
     }
-  }
+}
 
   async getVideo(id: number) {
     try {
