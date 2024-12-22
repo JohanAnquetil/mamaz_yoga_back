@@ -241,9 +241,12 @@ export class VideosService {
         .createQueryBuilder("history")
         .leftJoinAndSelect("history.videoEntity", "videoEntity")
         .leftJoinAndSelect("history.userEntity", "user")
+        .leftJoinAndSelect("videoEntity.category", "category")
         .select([
           "history",
           "videoEntity",
+          "category.id",
+          "category.category"
         ])
         .where("history.user = :userId", {userId: id})
         .getMany();
