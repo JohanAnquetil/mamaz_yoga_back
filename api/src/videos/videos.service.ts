@@ -103,7 +103,7 @@ export class VideosService {
     
         return {
           message: "Des vidéos ont été trouvées",
-          data: videosWithCategory
+          data: allVideos
         };
       } else {
         return "Aucune vidéo trouvée";
