@@ -1,38 +1,54 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from "typeorm";
+import { Entity, Column, ManyToOne, JoinColumn, PrimaryColumn } from "typeorm";
 import { VideoDescription } from "./videos_description.entity";
 import { User } from "@app/users/entities/user.entity";
 
 
-// @Entity({ name: "videos_history" })
+// @Entity({ name: 'videos_history' })
 // export class VideoHistory {
-//   @PrimaryGeneratedColumn("increment", { name: "id" })
+//   @PrimaryGeneratedColumn()
 //   id!: number;
 
-//   @ManyToOne(() => VideoDescription, (video) => video.videoHistories, { nullable: false })
-//   @JoinColumn({ name: "video" })
+//   @ManyToOne(() => User, (user) => user.videoHistories, { eager: true })
+//   @JoinColumn({ name: 'user' })
+//   user!: User;
+
+//   @ManyToOne(() => VideoDescription, (video) => video.videoHistories, { eager: true })
+//   @JoinColumn({ name: 'video' })
 //   video!: VideoDescription;
 
-//   @ManyToOne(() => User, (user) => user.id, { nullable: false })
-//   @JoinColumn({ name: "user" })
-//   user!: User;
+//   @Column('datetime')
+//   date!: Date;
+
+//   @Column("bigint", {name: "viewing_time_in_minutes", nullable: false,default: 0})
+//   viewingTime!: number;
 // }
 
-@Entity({ name: 'videos_history' })
-export class VideoHistory {
-  @PrimaryGeneratedColumn()
-  id!: number;
 
-  @ManyToOne(() => User, (user) => user.videoHistories, { eager: true }) // Relation avec User
-  @JoinColumn({ name: 'user' })
-  user!: User;
+@Entity('videos_history')
+export class VideosHistory {
+  
+  // 🟢 Clés Primaires Composites
+  @PrimaryColumn({ type: 'bigint' })
+  video!: number;
 
-  @ManyToOne(() => VideoDescription, (video) => video.videoHistories, { eager: true }) // Relation avec VideoDescription
-  @JoinColumn({ name: 'video' })
-  video!: VideoDescription;
+  @PrimaryColumn({ type: 'bigint', unsigned: true })
+  user!: number;
 
-  @Column('datetime')
+  // 🟢 Colonne Date
+  @Column({ type: 'datetime', nullable: false })
   date!: Date;
 
-  @Column("bigint", {name: "viewing_time_in_minutes", nullable: false,default: 0})
-  viewingTime!: number;
+  // 🟢 Durée de visionnage
+  @Column({ type: 'bigint', default: 0, nullable: false })
+  viewing_time_in_minutes!: number;
+
+  // 🟢 Relation avec Video
+  @ManyToOne(() => VideoDescription, (video) => video.videoHistories, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'video' })
+  videoEntity!: VideoDescription;
+
+  // 🟢 Relation avec User
+  @ManyToOne(() => User, (user) => user.videoHistories, { eager: true })
+   @JoinColumn({ name: 'user' })
+   userEntity!: User;
 }
