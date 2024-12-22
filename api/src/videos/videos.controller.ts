@@ -8,7 +8,12 @@ import { JwtAuthGuard } from '@app/auth/guards/jwt.guards';
 @Controller('videos')
 export class VideosController {
   constructor(private readonly videosService: VideosService) {}
-
+  
+    @Get()
+    async findAll() {
+      return this.videosService.findAll();
+    }
+  
   @Get('categories')
   @UseGuards(JwtAuthGuard)
   getCategories() {

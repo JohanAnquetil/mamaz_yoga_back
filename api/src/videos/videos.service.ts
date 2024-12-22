@@ -76,6 +76,18 @@ export class VideosService {
   //   return results;
   // }
 
+    async findAll() {
+      const allVideos = await this.videoDescriptionRepository.find();
+      if (allVideos.length > 0) {
+        return {
+          message: "Des vidéos ont été trouvées",
+          data: allVideos,
+        };
+      } else {
+        return "Aucune vidéo trouvée  ";
+      }
+    }
+
   async getCategoryDetails(id: number) {
     try {
       const categoryVideoDetails = await this.categoryRepository
