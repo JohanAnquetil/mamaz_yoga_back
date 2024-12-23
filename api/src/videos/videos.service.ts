@@ -240,20 +240,34 @@ export class VideosService {
       const userHistoric = await this.videoHistoryRepository
         .createQueryBuilder("history")
         .leftJoinAndSelect("history.videoEntity", "videoEntity")
-        .leftJoinAndSelect("history.userEntity", "user")
         .leftJoinAndSelect("videoEntity.category", "category")
-        .select([
-          "history",
-          "videoEntity",
-          "category.id",
-          "category.category"
-        ])
         .where("history.user = :userId", {userId: id})
         .getMany();
 
+      const formattedHistoric = userHistoric.map(history => ({
+        // Données historique (niveau racine)
+        video: history.video,
+        user: history.user,
+        date: history.date,
+        viewing_time_in_minutes: history.viewing_time_in_minutes,
+        
+        // Données vidéo (imbriquées)
+        video_entity: {
+          id: history.videoEntity.id,
+          name: history.videoEntity.name,
+          path: history.videoEntity.path,
+          isFreeVideo: history.videoEntity.isFreeVideo,
+          thumbnail: history.videoEntity.thumbnail,
+          date: history.videoEntity.date,
+          lenght: history.videoEntity.lenght,
+          categoryId: history.videoEntity.category?.id,
+          category: history.videoEntity.category?.category
+        }
+      }));
+
       return {
-        message: "données reçues",
-        data: userHistoric
+        message: "Historique trouvé",
+        data: formattedHistoric
       };
     }
     catch(error) {
