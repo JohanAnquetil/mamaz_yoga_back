@@ -261,7 +261,7 @@ export class VideosService {
           date: history.videoEntity.date,
           lenght: history.videoEntity.lenght,
           categoryId: history.videoEntity.category?.id,
-          category: history.videoEntity.category?.category
+          categoryName: history.videoEntity.category?.category
         }
       }));
 
