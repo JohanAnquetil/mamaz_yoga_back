@@ -15,6 +15,10 @@ export class VideoCategory {
     @Column("varchar", { length:500, name: "category", nullable: false } )
     category!: string;
     
+    @Column({ type: "int", nullable: false, default: 0 })
+    position!: number;
+    
+
     @OneToMany(() => VideoDescription, (videoDescription) => videoDescription.category)
     videoDescriptions!: VideoDescription[]; 
 }

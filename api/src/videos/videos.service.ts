@@ -26,68 +26,6 @@ export class VideosService {
     return this.categoryRepository.find();
   }
 
-  // async getCategoryDetails(id: number) {
-
-  //   console.log({id});
-  //   try {
-  //     const categoryVideoDetails = await this.categoryRepository
-  //     .createQueryBuilder("category")
-  //     .leftJoinAndSelect("category.videoDescriptions", "videoDescription")
-  //     .where("category.id = :id", { id: id })
-  //     //.select(["videoDescription.id"])
-  //     .getOne();
-
-  //     console.log({categoryVideoDetails})
-
-  //     return categoryVideoDetails
-  //   } catch (error) {
-  //     return error
-  //   }
-  // }
-
-  //       async downloadVideo(category: string, video: string, res: Response): Promise<void> {
-  //   const videoPath = path.join(this.videosPath, category, video);
-    
-  //   if (fs.existsSync(videoPath)) {
-  //     res.download(videoPath, video, (err) => {
-  //       if (err) {
-  //         throw new HttpException('Error downloading the video', HttpStatus.INTERNAL_SERVER_ERROR);
-  //       }
-  //     });
-  //   } else {
-  //     throw new HttpException('Video not found', HttpStatus.NOT_FOUND);
-  //   }
-  // }
-  // async searchVideos(query: string): Promise<Array<{ category: string, name: string }>> {
-  //   const categories = fs.readdirSync(this.videosPath, { withFileTypes: true })
-  //     .filter(dirent => dirent.isDirectory())
-  //     .map(dirent => dirent.name);
-  
-  //   let results: Array<{ category: string, name: string }> = [];
-  
-  //   for (const category of categories) {
-  //     const categoryPath = path.join(this.videosPath, category);
-  //     const files = fs.readdirSync(categoryPath, { withFileTypes: true })
-  //       .filter(file => this.isVideoFile(file.name) && file.name.toLowerCase().includes(query.toLowerCase()));
-  
-  //     results = results.concat(files.map(file => ({ category, name: file.name })));
-  //   }
-  
-  //   return results;
-  // }
-
-    // async findAll() {
-    //   const allVideos = await this.videoDescriptionRepository.find();
-    //   if (allVideos.length > 0) {
-    //     return {
-    //       message: "Des vidéos ont été trouvées",
-    //       data: allVideos,
-    //     };
-    //   } else {
-    //     return "Aucune vidéo trouvée  ";
-    //   }
-    // }
-
     async findAll() {
       const allVideos = await this.videoDescriptionRepository
         .createQueryBuilder('video')
@@ -122,10 +60,10 @@ export class VideosService {
         throw new Error(`Category with id ${id} not found`);
       }
   
-      // Remplacer path et thumbnail par les getters dans videoDescriptions
       const transformedVideoDescriptions = categoryVideoDetails.videoDescriptions.map(
         (video) => ({
           id: video.id,
+          position: video.position,
           name: video.name,
           categoryId: categoryVideoDetails.id,
           categoryName: categoryVideoDetails.category,

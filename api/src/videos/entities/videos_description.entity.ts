@@ -7,6 +7,9 @@ export class VideoDescription {
   @PrimaryGeneratedColumn("increment", { name: "id" })
   id!: number;
 
+  @Column({ type: "int", nullable: false, default: 0 })
+  position!: number;
+
   @Column("text", { name: "name", nullable: false })
   name!: string;
 
