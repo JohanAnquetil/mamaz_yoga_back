@@ -15,13 +15,11 @@ export class VideosController {
     }
   
   @Get('categories')
-  @UseGuards(JwtAuthGuard)
   getCategories() {
     return this.videosService.getCategories();
   }
 
   @Get('categories/:id')
-  @UseGuards(JwtAuthGuard)
   async fetchCategoryVideosDetails(@Param("id", ParseIntPipe) id: number) {
     try {
       const categoryVideoDetails = await this.videosService.getCategoryDetails(id)
@@ -44,7 +42,6 @@ export class VideosController {
 
 
   @Get('watch-video/:video')
-  @UseGuards(JwtAuthGuard)
   async streamVideo(@Param('video', ParseIntPipe) videoId: number, @Res() res: Response) {
     // const videoPath: any = await this.videosService.getVideosPath(category, video);
     const videoPath: any = await this.videosService.getVideo(videoId)

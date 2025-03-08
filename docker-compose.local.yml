@@ -28,8 +28,8 @@ services:
     volumes:
       #- ./api:/usr/src/app
       - /usr/src/app/node_modules
-      - mamaz_yoga_back_videos:/usr/src/app/videos
-      # /Users/johqn/Documents/Developpement/projects/luluz_yoga/videos:/usr/src/app/videos
+      # - mamaz_yoga_back_videos:/usr/src/app/videos
+      - /Users/johqn/Documents/Developpement/projects/luluz_yoga/videos:/usr/src/app/videos
 
 volumes:
   dbdata:

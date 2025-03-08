@@ -167,7 +167,7 @@ export class VideosService {
       if (record) {
         // Mise à jour de l'entrée existante
         record.date = new Date(data.date);
-        record.viewing_time_in_minutes += data.viewingTime ?? 10;
+        record.viewing_time_in_minutes = Number(record.viewing_time_in_minutes || 0) + Number(data.viewingTime || 0);
         console.log('Record updated:', record);
       } else {
         // Création d'une nouvelle entrée
@@ -175,7 +175,7 @@ export class VideosService {
           user: data.userId,
           video: data.videoId,
           date: new Date(data.date),
-          viewing_time_in_minutes: data.viewingTime ?? 10,
+          viewing_time_in_minutes: Number(data.viewingTime),
         });
         console.log('New record created:', record);
       }
