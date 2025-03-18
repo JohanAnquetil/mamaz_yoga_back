@@ -5,6 +5,7 @@ import { SubscriptionPlan } from "@app/subscription_plans/entities/subscription_
 import { User } from "@app/users/entities/user.entity";
 import { UsersMeta } from "@app/users_meta/entities/users_meta.entity";
 import { VideoCategory } from "@app/videos/entities/categories.entity";
+import { VideosFavorites } from "@app/videos/entities/favorites.entity";
 import { VideosHistory } from "@app/videos/entities/historic.entity";
 import { VideoDescription } from "@app/videos/entities/videos_description.entity";
 import { VideosModule } from "@app/videos/videos.module";
@@ -46,6 +47,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
             SubscriptionPlan,
             VideoCategory,
             VideosHistory,
+            VideosFavorites,
             VideoDescription,
           ],
           //synchronize: true,

@@ -132,6 +132,61 @@ export class VideosService {
     }
   }
 
+  async findOneFavorite(id: number) {
+    try {
+      const userFavorite = await this.videoFavoritesRepository
+        .createQueryBuilder("favorite")
+        .leftJoinAndSelect("favorite.videoEntity", "videoEntity")
+        .leftJoinAndSelect("videoEntity.category", "category")
+        .where("favorite.user = :userId", {userId: id})
+        .getMany();
+
+      const formattedFavorite = userFavorite.map(favori => ({
+        // Données historique (niveau racine)
+        video: favori.video,
+        user: favori.user,
+        date: favori.date,
+        viewing_time_in_minutes: favori.viewing_time_in_minutes,
+        
+        // Données vidéo (imbriquées)
+        video_entity: {
+          id: favori.videoEntity.id,
+          name: favori.videoEntity.name,
+          path: favori.videoEntity.path,
+          isFreeVideo: favori.videoEntity.isFreeVideo,
+          thumbnail: favori.videoEntity.thumbnail,
+          date: favori.videoEntity.date,
+          lenght: favori.videoEntity.lenght,
+          categoryId: favori.videoEntity.category?.id,
+          categoryName: favori.videoEntity.category?.category
+        }
+      }));
+
+      return {
+        message: "Favori trouvé",
+        data: formattedFavorite
+      };
+    }
+    catch(error) {
+      throw error;
+    }
+}
+
+
+  async fetchFavorites() {
+    const allFavorites = await this.videoFavoritesRepository.find()
+
+    if (allFavorites.length > 0) {
+      return {
+        message: "Les favoris ont été trouvés",
+        data: allFavorites,
+      }
+    }
+    else {
+      return "Aucun favori trouvé"
+    }
+  }
+
   async recordFavorite(data: { 
     userId: number; 
     videoId: number; 

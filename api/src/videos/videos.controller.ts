@@ -125,6 +125,12 @@ async recordVideoFavorites(
   };
 }
 
+@Get('fetch-favorites')
+async fetchFavorites() {
+  return await this.videosService.fetchFavorites();
+}
+
+
 @Get('fetch-historic')
 async fetchHistoric() {
   return await this.videosService.fetchHistoric();

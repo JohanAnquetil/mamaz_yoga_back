@@ -6,6 +6,7 @@ import { VideoCategory } from "./entities/categories.entity";
 import { User } from "@app/users/entities/user.entity";
 import { VideosHistory } from "./entities/historic.entity";
 import { VideoDescription } from "./entities/videos_description.entity";
+import { VideosFavorites } from "./entities/favorites.entity";
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { VideoDescription } from "./entities/videos_description.entity";
       VideoDescription,
       VideosHistory,
       VideoCategory,
+      VideosFavorites,
       User,
     ]),
   ],
