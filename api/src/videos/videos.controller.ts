@@ -130,6 +130,21 @@ async fetchFavorites() {
   return await this.videosService.fetchFavorites();
 }
 
+@Get('fetch-favorite/:id')
+async findOneFavorite(@Param("id", ParseIntPipe) id: number,){
+  try {
+    const favorite = await this.videosService.findOneFavorite(id);
+    if(!favorite) {
+      throw new NotFoundException(`L'historique de la vidéo avec l'id : ${id} n'existe pas`);
+    }
+    return favorite
+  } catch (error) {
+    if (error instanceof HttpException) {
+      throw error;
+    }
+  }
+}
+
 
 @Get('fetch-historic')
 async fetchHistoric() {
