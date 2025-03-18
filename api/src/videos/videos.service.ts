@@ -173,38 +173,7 @@ export class VideosService {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
-  }
-  
-  
-  // async recordVideoWatched(data: { 
-  //   userId: number; 
-  //   videoId: number; 
-  //   date: string; 
-  //   viewingTime?: number; 
-  // }): Promise<VideosHistory> {
-  //   try {
-  //     console.log(data);
-  
-  //     const record = this.videoHistoryRepository.create({
-  //       user: data.userId,
-  //       video: data.videoId,
-  //       date: new Date(data.date) ?? Date.now,
-  //       viewing_time_in_minutes: data.viewingTime ?? 10,
-  //     });
-  
-  //     console.log('Record to save:', record);
-  
-  //     // Sauvegarde dans la base de données
-  //     return await this.videoHistoryRepository.save(record);
-  //   } catch (error) {
-  //     console.error('Error saving video watch record:', error);
-  //     throw new HttpException(
-  //       'Could not record video watch. Please try again.',
-  //       HttpStatus.INTERNAL_SERVER_ERROR,
-  //     );
-  //   }
-  // }
-  
+  }  
 
   async fetchHistoric() {
     const allHistoric = await this.videoHistoryRepository.find()

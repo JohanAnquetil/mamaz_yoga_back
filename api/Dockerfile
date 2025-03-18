@@ -1,4 +1,4 @@
-FROM node:latest
+FROM node:20-alpine
 
 # Installez dockerize ou un outil similaire
 ENV DOCKERIZE_VERSION v0.6.1
