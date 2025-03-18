@@ -1,6 +1,7 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { VideoCategory } from "./categories.entity";
 import { VideosHistory } from "./historic.entity";
+import { VideosFavorites } from "./favorites.entity";
 
 @Entity({ name: "videos_description" })
 export class VideoDescription {
@@ -34,6 +35,9 @@ export class VideoDescription {
 
   @OneToMany(() => VideosHistory, (videoHistory) => videoHistory.video)
   videoHistories!: VideosHistory[];
+
+  @OneToMany(() => VideosFavorites, (videoFavorites) => videoFavorites.video)
+  videoFavorites!: VideosFavorites[];
 
   get fullThumbnailPath(): string {
     return `/usr/src/app/videos/${this.thumbnail}`;

@@ -102,6 +102,29 @@ async recordVideoWatchedByUser(
   };
 }
 
+@Post('record-favorite')
+async recordVideoFavorites(
+  @Body() data: { userId: number; videoId: number; date: string, viewingTime: number },
+) {
+  // Vérifie la présence des données nécessaires
+  if (!data.userId || !data.videoId || !data.date) {
+    throw new HttpException(
+      'Missing required fields (userId, videoId, date)',
+      HttpStatus.BAD_REQUEST,
+    );
+  }
+
+  // Appelle le service pour enregistrer le visionnage
+  const record = await this.videosService.recordFavorite(data);
+
+  console.log(record)
+
+  return {
+    message: 'Favorite recorded successfully',
+    data: record,
+  };
+}
+
 @Get('fetch-historic')
 async fetchHistoric() {
   return await this.videosService.fetchHistoric();

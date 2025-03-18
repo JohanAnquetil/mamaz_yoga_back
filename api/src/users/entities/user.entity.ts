@@ -1,4 +1,5 @@
 import { UsersMeta } from "@app/users_meta/entities/users_meta.entity";
+import { VideosFavorites } from "@app/videos/entities/favorites.entity";
 import { VideosHistory } from "@app/videos/entities/historic.entity";
 import {
   Column,
@@ -49,6 +50,9 @@ export class User {
 
   @OneToMany(() => VideosHistory, (videoHistory) => videoHistory.userEntity)
   videoHistories!: VideosHistory[];
+
+  @OneToMany(() => VideosFavorites, (videoFavorites) => videoFavorites.userEntity)
+  VideosFavorites!: VideosFavorites[];
 
   // @OneToMany(() => VideoHistory, (videoHistory) => videoHistory.user)
   // videoHistories!: VideoHistory[];

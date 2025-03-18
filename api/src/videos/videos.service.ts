@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { VideoCategory } from './entities/categories.entity';
 import { VideoDescription } from './entities/videos_description.entity';
 import { VideosHistory } from './entities/historic.entity';
+import { VideosFavorites } from './entities/favorites.entity';
 
 @Injectable()
 export class VideosService {
@@ -17,6 +18,9 @@ export class VideosService {
 
     @InjectRepository(VideosHistory)
     private readonly videoHistoryRepository: Repository<VideosHistory>,
+
+    @InjectRepository(VideosFavorites)
+    private readonly videoFavoritesRepository: Repository<VideosFavorites>,
 
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
@@ -119,6 +123,49 @@ export class VideosService {
       }
   
       return await this.videoHistoryRepository.save(record);
+    } catch (error) {
+      console.error('Error saving video watch record:', error);
+      throw new HttpException(
+        'Could not record video watch. Please try again.',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async recordFavorite(data: { 
+    userId: number; 
+    videoId: number; 
+    date: string; 
+    viewingTime?: number; 
+  }): Promise<VideosHistory> {
+    try {
+      console.log(data);
+  
+      // Vérifie si une entrée existe déjà
+      let record = await this.videoFavoritesRepository.findOne({
+        where: {
+          user: data.userId,
+          video: data.videoId,
+        },
+      });
+  
+      if (record) {
+        // Mise à jour de l'entrée existante
+        record.date = new Date(data.date);
+        record.viewing_time_in_minutes = Number(record.viewing_time_in_minutes || 0) + Number(data.viewingTime || 0);
+        console.log('Record updated:', record);
+      } else {
+        // Création d'une nouvelle entrée
+        record = this.videoFavoritesRepository.create({
+          user: data.userId,
+          video: data.videoId,
+          date: new Date(data.date),
+          viewing_time_in_minutes: Number(data.viewingTime),
+        });
+        console.log('New record created:', record);
+      }
+  
+      return await this.videoFavoritesRepository.save(record);
     } catch (error) {
       console.error('Error saving video watch record:', error);
       throw new HttpException(

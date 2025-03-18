@@ -3,8 +3,8 @@ import { VideoDescription } from "./videos_description.entity";
 import { User } from "@app/users/entities/user.entity";
 
 
-@Entity('videos_history')
-export class VideosHistory {
+@Entity('videos_favorites')
+export class VideosFavorites {
   
   // 🟢 Clés Primaires Composites
   @PrimaryColumn({ type: 'bigint' })
