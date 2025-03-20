@@ -1,4 +1,4 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus, Body, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '@app/users/entities/user.entity';
 import { Repository } from 'typeorm';
@@ -284,6 +284,20 @@ export class VideosService {
     }
 }
 
+
+  // Delete a favori thanks video and userI ID
+  // Returns a confirmation message
+  async delete(@Body() data: {userId: number, videoId: number}): Promise<string> {
+    const result = await this.videoFavoritesRepository.delete({
+      user: data.userId,
+      video: data.videoId
+    });
+    if (result.affected === 0) {
+        throw new NotFoundException(`Le favori avec la vidéo ${data.videoId} not found`);
+    }
+    return "Le favori a bien été effacé";
+  }
+
   async getVideo(id: number) {
     try {
       const videoPath = await this.videoDescriptionRepository
@@ -337,47 +351,4 @@ export class VideosService {
       throw error;
     }
   }
-  
-  //
-  // async getVideosDetails(id: number) {
-  //   try {
-  //     const videoDetails = await this.videoDescriptionRepository
-  //     .createQueryBuilder("videoDescription")
-  //     .where("videoDescription.id = :id", { id: id })
-  //     .getOne();
-
-  //     // return `/usr/src/app/videos/${videoPath}`
-
-  //     return videoDetails
-  //   } catch (error) {
-  //     return error
-  //   }
-  // }
-  // async getVideosDetails(id: number) {
-  //   try {
-  //     const videoDetails = await this.videoDescriptionRepository
-  //       .createQueryBuilder('videoDescription')
-  //       .where('videoDescription.id = :id', { id })
-  //       .select([
-  //         "videoDescription.id",
-  //         "videoDescription.name",
-  //         "videoDescription.isFreeVideo",
-  //         "videoDescription.date",
-  //         "videoDescription.lenght"
-  //       ])
-  //       .getOne();
-  
-  //     if (videoDetails) {
-  //       return {
-  //         ...videoDetails,
-  //         thumbnailPath: videoDetails.fullThumbnailPath,
-  //         videoPath: videoDetails.fullVideoPath,
-  //       };
-  //     } else {
-  //       throw new Error('Video not found');
-  //     }
-  //   } catch (error) {
-  //     throw error;
-  //   }
-  // }
 }

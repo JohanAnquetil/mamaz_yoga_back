@@ -125,6 +125,15 @@ async recordVideoFavorites(
   };
 }
 
+@Delete("delete-favori")
+async delete(
+  @Body() data: { videoId: number, userId: number }, 
+) : Promise<string> {
+  console.log("data", data);
+  await this.videosService.delete(data);
+  return "Favori effacé !";
+}
+
 @Get('fetch-favorites')
 async fetchFavorites() {
   return await this.videosService.fetchFavorites();
