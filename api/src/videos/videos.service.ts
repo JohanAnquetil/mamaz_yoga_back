@@ -287,16 +287,20 @@ export class VideosService {
 
   // Delete a favori thanks video and userI ID
   // Returns a confirmation message
-  async delete(@Body() data: {userId: number, videoId: number}): Promise<string> {
+  async delete(data: {userId: number, videoId: number}): Promise<string> {
     const result = await this.videoFavoritesRepository.delete({
       user: data.userId,
       video: data.videoId
     });
+
+    console.log(result);
+    console.log(result.affected);
+    
     if (result.affected === 0) {
-        throw new NotFoundException(`Le favori avec la vidéo ${data.videoId} not found`);
+        throw new NotFoundException(`Le favori avec la vidéo ${data.videoId} n'a pas été trouvé`);
     }
     return "Le favori a bien été effacé";
-  }
+}
 
   async getVideo(id: number) {
     try {
