@@ -11,6 +11,8 @@ import { AuthModule } from "./auth/auth.module";
 import { VideosModule } from './videos/videos.module';
 import { VideosService } from './videos/videos.service';
 import { User } from "./users/entities/user.entity";
+import { TagsPreferencesUser } from "./users/entities/tags_preferences.entity";
+import { VideosTags } from "./videos/entities/tags.entity";
 
 @Module({
   imports: [

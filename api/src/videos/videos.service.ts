@@ -6,6 +6,7 @@ import { VideoCategory } from './entities/categories.entity';
 import { VideoDescription } from './entities/videos_description.entity';
 import { VideosHistory } from './entities/historic.entity';
 import { VideosFavorites } from './entities/favorites.entity';
+import { VideosTags } from './entities/tags.entity';
 
 @Injectable()
 export class VideosService {
@@ -24,6 +25,9 @@ export class VideosService {
 
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+
+    @InjectRepository(VideosTags)
+    private readonly videosTagsRepository: Repository<VideosTags>,
   ) {}
 
   async getCategories() {
@@ -37,15 +41,23 @@ export class VideosService {
         .getMany();
     
       if (allVideos.length > 0) {
-        const videosWithCategory = allVideos.map(video => ({
-          ...video,
-          categoryId: video.category?.id,
-          categoryName: video.category?.category
-        }));
+        // const videosWithCategory = allVideos.map(video => ({
+        //   ...video,
+        //   categoryId: video.category?.id,
+        //   categoryName: video.category?.category
+        // }));
+
+      const videosWithCategories = allVideos.map(video => ({
+      ...video,
+      categories: video.liaisons.map((liaison) => ({
+        id: liaison.categoryEntity.id,
+        name: liaison.categoryEntity.category,
+      })),
+    }));
     
         return {
           message: "Des vidéos ont été trouvées",
-          data: videosWithCategory
+          data: videosWithCategories
         };
       } else {
         return "Aucune vidéo trouvée";
@@ -54,34 +66,37 @@ export class VideosService {
 
   async getCategoryDetails(id: number) {
     try {
+      console.log(`in getCategoryDetails service : ${id}`)
+
       const categoryVideoDetails = await this.categoryRepository
-        .createQueryBuilder("category")
-        .leftJoinAndSelect("category.videoDescriptions", "videoDescription")
-        .where("category.id = :id", { id })
+        .createQueryBuilder('category')
+        .leftJoinAndSelect('category.liaisons', 'liaisons')
+        .leftJoinAndSelect('liaisons.videoEntity', 'videoEntity')
+        .where('category.id = :id', { id })
         .getOne();
-  
-      if (!categoryVideoDetails) {
-        throw new Error(`Category with id ${id} not found`);
-      }
-  
-      const transformedVideoDescriptions = categoryVideoDetails.videoDescriptions.map(
+
+      console.log(categoryVideoDetails?.liaisons);
+
+    const transformedVideoDescriptions = categoryVideoDetails?.liaisons.map(
         (video) => ({
-          id: video.id,
-          position: video.position,
-          name: video.name,
+          id: video.videoEntity.id,
+          position: video.videoEntity.position,
+          name: video.videoEntity.name,
+          tags: video.videoEntity.tags,
           categoryId: categoryVideoDetails.id,
           categoryName: categoryVideoDetails.category,
-          isFreeVideo: video.isFreeVideo,
-          lenght: video.lenght,
-          date: video.date,
-          path: video.fullVideoPath,
-          thumbnail: video.thumbnail,
+          isFreeVideo: video.videoEntity.isFreeVideo,
+          lenght: video.videoEntity.lenght,
+          date: video.videoEntity.date,
+          path: video.videoEntity.fullVideoPath,
+          thumbnail: video.videoEntity.thumbnail,
         })
       );
-  
+
+      //console.log("transformedVideoDescriptions :", transformedVideoDescriptions);
       return {
-        id: categoryVideoDetails.id,
-        category: categoryVideoDetails.category,
+        id: categoryVideoDetails?.id,
+        category: categoryVideoDetails?.category,
         videoDescriptions: transformedVideoDescriptions,
       };
     } catch (error) {
@@ -137,7 +152,8 @@ export class VideosService {
       const userFavorite = await this.videoFavoritesRepository
         .createQueryBuilder("favorite")
         .leftJoinAndSelect("favorite.videoEntity", "videoEntity")
-        .leftJoinAndSelect("videoEntity.category", "category")
+        .leftJoinAndSelect("videoEntity.liaisons", "liaisons")
+      .leftJoinAndSelect("liaisons.categoryEntity", "categoryEntity")
         .where("favorite.user = :userId", {userId: id})
         .getMany();
 
@@ -157,8 +173,8 @@ export class VideosService {
           thumbnail: favori.videoEntity.thumbnail,
           date: favori.videoEntity.date,
           lenght: favori.videoEntity.lenght,
-          categoryId: favori.videoEntity.category?.id,
-          categoryName: favori.videoEntity.category?.category
+          categoryId: favori.videoEntity.liaisons.map((categories) => categories.categorie_id),
+          categoryName: favori.videoEntity.liaisons.map((categories) => categories.categoryEntity.category)
         }
       }));
 
@@ -269,8 +285,9 @@ export class VideosService {
           thumbnail: history.videoEntity.thumbnail,
           date: history.videoEntity.date,
           lenght: history.videoEntity.lenght,
-          categoryId: history.videoEntity.category?.id,
-          categoryName: history.videoEntity.category?.category
+          categoryId: history.videoEntity.liaisons.map((category) => category.categorie_id),
+          categoryName: history.videoEntity.liaisons.map((category)=> category.categoryEntity.category),
+          tags: history.videoEntity.tags
         }
       }));
 
@@ -324,18 +341,23 @@ export class VideosService {
     try {
       const videoDetails = await this.videoDescriptionRepository
         .createQueryBuilder('videoDescription')
+        .leftJoinAndSelect('videoDescription.liaisons', 'liaisons')
+        .leftJoinAndSelect('liaisons.categoryEntity', 'categoryEntity')
         .where('videoDescription.id = :id', { id })
-        .select([
-          "videoDescription.id",
-          "videoDescription.category",
-          "videoDescription.name",
-          "videoDescription.isFreeVideo",
-          "videoDescription.date",
-          "videoDescription.lenght",
-          "videoDescription.path",
-          "videoDescription.thumbnail",
-        ])
+        // .select([
+        //   "videoDescription.id",
+        //   "videoDescription.category",
+        //   "videoDescription.name",
+        //   "videoDescription.isFreeVideo",
+        //   "videoDescription.date",
+        //   "videoDescription.lenght",
+        //   "videoDescription.path",
+        //   "videoDescription.thumbnail",
+        //   "videosDescription.tags"
+        // ])
         .getOne();
+
+        console.log("videoDetails :", videoDetails);
   
       if (videoDetails) {
         return {
@@ -346,7 +368,10 @@ export class VideosService {
           lenght: videoDetails.lenght,
           thumbnail: videoDetails.thumbnail,
           path: videoDetails.path,
-          category: videoDetails.category,
+          category: videoDetails.liaisons.map((category) => { 
+            console.log(category.categoryEntity.category);
+            return category.categoryEntity.category}),
+          tags: videoDetails.tags
         };
       } else {
         throw new Error('Video not found');
@@ -355,4 +380,9 @@ export class VideosService {
       throw error;
     }
   }
+
+  async getTags() {
+    return this.videosTagsRepository.find();
+  }
+  
 }

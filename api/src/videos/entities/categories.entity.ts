@@ -4,7 +4,7 @@ import {
     OneToMany,
     PrimaryGeneratedColumn,
   } from "typeorm";
-import { VideoDescription } from "./videos_description.entity";
+import { VideosLiaisonsCategoriesVideos } from "./videos_liaisons_categories_videos.entity";
   
 @Entity({name: "videos_categories"})
 
@@ -18,7 +18,6 @@ export class VideoCategory {
     @Column({ type: "int", nullable: false, default: 0 })
     position!: number;
     
-
-    @OneToMany(() => VideoDescription, (videoDescription) => videoDescription.category)
-    videoDescriptions!: VideoDescription[]; 
+    @OneToMany(() => VideosLiaisonsCategoriesVideos, (liaison) => liaison.categoryEntity)
+    liaisons!: VideosLiaisonsCategoriesVideos[]; 
 }

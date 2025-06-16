@@ -21,6 +21,7 @@ export class VideosController {
   @Get('categories/:id')
   async fetchCategoryVideosDetails(@Param("id", ParseIntPipe) id: number) {
     try {
+      console.log("enterded in category/:id", id)
       const categoryVideoDetails = await this.videosService.getCategoryDetails(id)
       if(!categoryVideoDetails) {
         throw new NotFoundException(`La catégorie avec l'id : ${id} n'existe pas`);
@@ -33,6 +34,10 @@ export class VideosController {
   }
   }
 
+  @Get('get-tags')
+  async getTags() {
+    return this.videosService.getTags();
+  }
 
   @Get('watch-video/:video')
   async streamVideo(@Param('video', ParseIntPipe) videoId: number, @Res() res: Response) {

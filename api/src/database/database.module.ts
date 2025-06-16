@@ -2,12 +2,16 @@ import { Member } from "@app/members/entities/member.entity";
 import { PostNews } from "@app/posts/entities/post-news.entity";
 import { PostsMeta } from "@app/posts_meta/entities/posts_meta.entity";
 import { SubscriptionPlan } from "@app/subscription_plans/entities/subscription_plan.entity";
+import { VideosUserTags } from "@app/users/entities/tags";
+import { TagsPreferencesUser } from "@app/users/entities/tags_preferences.entity";
 import { User } from "@app/users/entities/user.entity";
 import { UsersMeta } from "@app/users_meta/entities/users_meta.entity";
 import { VideoCategory } from "@app/videos/entities/categories.entity";
 import { VideosFavorites } from "@app/videos/entities/favorites.entity";
 import { VideosHistory } from "@app/videos/entities/historic.entity";
+import { VideosTags } from "@app/videos/entities/tags.entity";
 import { VideoDescription } from "@app/videos/entities/videos_description.entity";
+import { VideosLiaisonsCategoriesVideos } from "@app/videos/entities/videos_liaisons_categories_videos.entity";
 import { VideosModule } from "@app/videos/videos.module";
 import { Module } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
@@ -49,6 +53,10 @@ import { TypeOrmModule } from "@nestjs/typeorm";
             VideosHistory,
             VideosFavorites,
             VideoDescription,
+            VideosTags,
+            VideosLiaisonsCategoriesVideos,
+            TagsPreferencesUser,
+            VideosUserTags,   
           ],
           //synchronize: true,
         };

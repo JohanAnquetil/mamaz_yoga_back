@@ -2,6 +2,7 @@ import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColum
 import { VideoCategory } from "./categories.entity";
 import { VideosHistory } from "./historic.entity";
 import { VideosFavorites } from "./favorites.entity";
+import { VideosLiaisonsCategoriesVideos } from "./videos_liaisons_categories_videos.entity";
 
 @Entity({ name: "videos_description" })
 export class VideoDescription {
@@ -29,9 +30,15 @@ export class VideoDescription {
   @Column ("int", {name: "lenght", nullable: false})
   lenght!: number;
 
-  @ManyToOne(() => VideoCategory, (videoCategory) => videoCategory.videoDescriptions, { nullable: false })
-  @JoinColumn({ name: "category" })
-  category!: VideoCategory; 
+  @Column("simple-array", { name: "tags", nullable: false, default:"" })
+  tags!: string[];
+
+  // @ManyToOne(() => VideoCategory, (videoCategory) => videoCategory.videoDescriptions, { nullable: false })
+  // @JoinColumn({ name: "category" })
+  // category!: VideoCategory; 
+
+  @OneToMany(() => VideosLiaisonsCategoriesVideos, (liaison) => liaison.videoEntity)
+  liaisons!: VideosLiaisonsCategoriesVideos[];
 
   @OneToMany(() => VideosHistory, (videoHistory) => videoHistory.video)
   videoHistories!: VideosHistory[];

@@ -2,13 +2,15 @@ import { SubscriptionPlansService } from "@app/subscription_plans/subscription_p
 import { HttpException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { unserialize } from "php-unserialize";
-import { Repository } from "typeorm";
+import { In, Repository } from "typeorm";
 import { CreateUserDto } from "./dto/create_user.dto";
 import { UpdateUserDto } from "./dto/update_user.dto";
 import { User } from "./entities/user.entity";
 import { isExpiredSubscription } from "./utils/is_expired_subscription";
 import { dateConversionUnixToIso } from "./utils/date_conversion";
-import { UsersMeta } from "@app/users_meta/entities/users_meta.entity";
+import { TagsPreferencesUser } from "./entities/tags_preferences.entity";
+import { PreferencesUserDTO } from "./dto/preferences_user.dto";
+import { VideosUserTags } from "./entities/tags";
 
 @Injectable()
 export class UsersService {
@@ -16,10 +18,77 @@ export class UsersService {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private readonly subscriptionPlansService: SubscriptionPlansService,
+    @InjectRepository(TagsPreferencesUser)
+    private readonly tagPreferenceUserRepository : Repository<TagsPreferencesUser>,
+    @InjectRepository(VideosUserTags)
+    private readonly videosUserTagsRepository: Repository<VideosUserTags>,
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<void> {
     await this.userRepository.save(createUserDto);
+  }
+
+  async getTagsPreferences() {
+    const tagsPreferences = await this.tagPreferenceUserRepository.find();
+    if (!tagsPreferences || tagsPreferences.length === 0) {
+      throw new NotFoundException("Aucune préférence de tags trouvée");
+    }
+    return tagsPreferences;
+  }
+
+  async updateTagsPreferences(preferencesUser: PreferencesUserDTO) {
+    const { user_id, tags_id } = preferencesUser;
+
+    // Check if the user exists
+    const user = await this.userRepository.findOne({ where: { id: user_id } });
+    if (!user) {
+      throw new NotFoundException(`L'utilisateur avec l'id ${user_id} n'existe pas`);
+    }
+
+    // Check if the tag exists
+    const tag = await this.videosUserTagsRepository.findOne({ where: { id: In(tags_id) } });
+    if (!tag) {
+      throw new NotFoundException(`Le tag avec l'id ${tags_id} n'existe pas`);
+    }
+
+    // Create or update the preference
+    const preference = await this.tagPreferenceUserRepository.findOne({
+      where: { user_id, tags_id: In(tags_id) },
+    });
+
+    if (preference) {
+      // Update existing preference
+      // If tags_id is an array, update preferences for each tag
+      if (Array.isArray(tags_id)) {
+        // Remove existing preferences for this user
+        await this.tagPreferenceUserRepository.delete({ user_id });
+        // Create new preferences for each tag
+        const newPreferences = tags_id.map(tag_id => this.tagPreferenceUserRepository.create({ user_id, tags_id: tag_id }));
+        await this.tagPreferenceUserRepository.save(newPreferences);
+      } else {
+        preference.tags_id = tags_id;
+        await this.tagPreferenceUserRepository.save(preference);
+      }
+    } else {
+      // Create new preference
+      if (Array.isArray(tags_id)) {
+        const newPreferences = tags_id.map(tag_id =>
+          this.tagPreferenceUserRepository.create({
+            user_id,
+            tags_id: tag_id,
+          })
+        );
+        await this.tagPreferenceUserRepository.save(newPreferences);
+      } else {
+        const newPreference = this.tagPreferenceUserRepository.create({
+          user_id,
+          tags_id,
+        });
+        await this.tagPreferenceUserRepository.save(newPreference);
+      }
+    }
+
+    return "Préférence de tags mise à jour avec succès";
   }
 
   async findAll(): Promise<Record<string, any> | string> {
