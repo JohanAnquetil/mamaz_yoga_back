@@ -261,13 +261,21 @@ export class VideosService {
   }
 
   async findOneHistoric(id: number) {
+    console.log("in findOneHistoric service dont l'userId est :", id);
+    if (!id) {
+      throw new NotFoundException("User ID is required");
+    }
     try {
       const userHistoric = await this.videoHistoryRepository
         .createQueryBuilder("history")
         .leftJoinAndSelect("history.videoEntity", "videoEntity")
-        .leftJoinAndSelect("videoEntity.category", "category")
-        .where("history.user = :userId", {userId: id})
+        .leftJoinAndSelect("videoEntity.liaisons", "liaisons")
+        .leftJoinAndSelect("liaisons.categoryEntity", "categories") // Utilisez "categories" pour la relation Many-to-Many
+        .where("history.user = :userId", { userId: id })
         .getMany();
+
+      
+      console.log("userHistoric :", userHistoric);
 
       const formattedHistoric = userHistoric.map(history => ({
         // Données historique (niveau racine)
@@ -285,12 +293,16 @@ export class VideosService {
           thumbnail: history.videoEntity.thumbnail,
           date: history.videoEntity.date,
           lenght: history.videoEntity.lenght,
-          categoryId: history.videoEntity.liaisons.map((category) => category.categorie_id),
-          categoryName: history.videoEntity.liaisons.map((category)=> category.categoryEntity.category),
+          //category: history.videoEntity.liaisons,
+          categories: history.videoEntity.liaisons.map(liaison => ({
+      id: liaison.categoryEntity.id,
+      name: liaison.categoryEntity.category,
+    })),
+          //categoryName: history.videoEntity.liaisons,
           tags: history.videoEntity.tags
         }
       }));
-
+      console.log("formattedHistoric :", formattedHistoric);
       return {
         message: "Historique trouvé",
         data: formattedHistoric
@@ -300,7 +312,6 @@ export class VideosService {
       throw error;
     }
 }
-
 
   // Delete a favori thanks video and userI ID
   // Returns a confirmation message

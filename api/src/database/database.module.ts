@@ -16,6 +16,7 @@ import { VideosModule } from "@app/videos/videos.module";
 import { Module } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
+import { env } from "process";
 
 @Module({
   imports: [
@@ -26,6 +27,8 @@ import { TypeOrmModule } from "@nestjs/typeorm";
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => {
+        console.log("Using env file:", process.env.NODE_ENV === "test" ? "./.env.test" : "./.env");
+        console.log("WHOAMI:", configService.get<string>("WHOAMI"));
         console.log("DB Host:", configService.get<string>("DB_HOST"));
         console.log("DB username:", configService.get<string>("DB_USERNAME"));
         console.log("DB password:", configService.get<string>("DB_PASSWORD"));

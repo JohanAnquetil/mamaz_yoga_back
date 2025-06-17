@@ -5,6 +5,7 @@ import {
     PrimaryGeneratedColumn,
   } from "typeorm";
 import { VideosLiaisonsCategoriesVideos } from "./videos_liaisons_categories_videos.entity";
+import { VideoDescription } from "./videos_description.entity";
   
 @Entity({name: "videos_categories"})
 
@@ -20,4 +21,7 @@ export class VideoCategory {
     
     @OneToMany(() => VideosLiaisonsCategoriesVideos, (liaison) => liaison.categoryEntity)
     liaisons!: VideosLiaisonsCategoriesVideos[]; 
+
+    @OneToMany(() => VideoDescription, (video) => video.category)
+    videos!: VideoDescription[];
 }

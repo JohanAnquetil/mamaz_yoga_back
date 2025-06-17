@@ -47,7 +47,7 @@ export class VideosController {
       throw new HttpException('Video not found', HttpStatus.NOT_FOUND);
     }
 
-    console.log({videoPath})
+    console.log( { videoPath } );
 
     const videoStat = fs.statSync(videoPath);
     const fileSize = videoStat.size;

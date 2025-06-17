@@ -33,9 +33,9 @@ export class VideoDescription {
   @Column("simple-array", { name: "tags", nullable: false, default:"" })
   tags!: string[];
 
-  // @ManyToOne(() => VideoCategory, (videoCategory) => videoCategory.videoDescriptions, { nullable: false })
-  // @JoinColumn({ name: "category" })
-  // category!: VideoCategory; 
+  @ManyToOne(() => VideoCategory, (videoCategory) => videoCategory.videos, { nullable: false })
+  @JoinColumn({ name: "category" })
+  category!: VideoCategory; 
 
   @OneToMany(() => VideosLiaisonsCategoriesVideos, (liaison) => liaison.videoEntity)
   liaisons!: VideosLiaisonsCategoriesVideos[];
