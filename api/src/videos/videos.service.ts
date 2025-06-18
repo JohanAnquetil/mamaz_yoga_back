@@ -38,14 +38,16 @@ export class VideosService {
       const allVideos = await this.videoDescriptionRepository
         .createQueryBuilder('video')
         .leftJoinAndSelect('video.category', 'category')
+        .leftJoinAndSelect('video.liaisons', 'liaisons')
+        .leftJoinAndSelect('liaisons.categoryEntity', 'categoryEntity')
         .getMany();
     
       if (allVideos.length > 0) {
-        // const videosWithCategory = allVideos.map(video => ({
-        //   ...video,
-        //   categoryId: video.category?.id,
-        //   categoryName: video.category?.category
-        // }));
+        const videosWithCategory = allVideos.map(video => ({
+          ...video,
+          categoryId: video.category?.id,
+          categoryName: video.category?.category
+        }));
 
       const videosWithCategories = allVideos.map(video => ({
       ...video,
@@ -59,9 +61,10 @@ export class VideosService {
           message: "Des vidéos ont été trouvées",
           data: videosWithCategories
         };
-      } else {
-        return "Aucune vidéo trouvée";
-      }
+      } 
+       else {
+         return "Aucune vidéo trouvée";
+       }
     }
 
   async getCategoryDetails(id: number) {
