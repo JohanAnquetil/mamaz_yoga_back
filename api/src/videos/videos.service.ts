@@ -7,6 +7,7 @@ import { VideoDescription } from './entities/videos_description.entity';
 import { VideosHistory } from './entities/historic.entity';
 import { VideosFavorites } from './entities/favorites.entity';
 import { VideosTags } from './entities/tags.entity';
+import path from 'path';
 
 @Injectable()
 export class VideosService {
@@ -44,26 +45,32 @@ export class VideosService {
     
       if (allVideos.length > 0) {
         const videosWithCategory = allVideos.map(video => ({
-          ...video,
-          categoryId: video.category?.id,
-          categoryName: video.category?.category
-        }));
-
-      const videosWithCategories = allVideos.map(video => ({
-      ...video,
+      id: video.id,
+      position: video.position,
+      name: video.name,
+      path: video.path,
+      isFreeVideo: video.isFreeVideo,
+      thumbnail: video.thumbnail,
+      date: video.date,
+      lenght: video.lenght,
+      tags: video.tags,
       categories: video.liaisons.map((liaison) => ({
         id: liaison.categoryEntity.id,
         name: liaison.categoryEntity.category,
+        position: liaison.categoryEntity.position,
       })),
     }));
     
         return {
           message: "Des vidéos ont été trouvées",
-          data: videosWithCategories
+          data: videosWithCategory
         };
       } 
        else {
-         return "Aucune vidéo trouvée";
+         return {
+          message: "Aucune vidéo trouvée",
+          data: []
+        };
        }
     }
 
@@ -72,31 +79,36 @@ export class VideosService {
       console.log(`in getCategoryDetails service : ${id}`)
 
       const categoryVideoDetails = await this.categoryRepository
-        .createQueryBuilder('category')
-        .leftJoinAndSelect('category.liaisons', 'liaisons')
-        .leftJoinAndSelect('liaisons.videoEntity', 'videoEntity')
+      .createQueryBuilder('category')
+      .leftJoinAndSelect('category.liaisons', 'liaisons')
+      .leftJoinAndSelect('liaisons.videoEntity', 'videoEntity')
+      .leftJoinAndSelect('videoEntity.liaisons', 'videoLiaisons')
+      .leftJoinAndSelect('videoLiaisons.categoryEntity', 'categoryEntity')
         .where('category.id = :id', { id })
         .getOne();
 
-      console.log(categoryVideoDetails?.liaisons);
+        console.log('categoryVideoDetails:', JSON.stringify(categoryVideoDetails, null, 2));
+
 
     const transformedVideoDescriptions = categoryVideoDetails?.liaisons.map(
         (video) => ({
           id: video.videoEntity.id,
           position: video.videoEntity.position,
           name: video.videoEntity.name,
-          tags: video.videoEntity.tags,
-          categoryId: categoryVideoDetails.id,
-          categoryName: categoryVideoDetails.category,
-          isFreeVideo: video.videoEntity.isFreeVideo,
-          lenght: video.videoEntity.lenght,
-          date: video.videoEntity.date,
           path: video.videoEntity.fullVideoPath,
+          isFreeVideo: video.videoEntity.isFreeVideo,
           thumbnail: video.videoEntity.thumbnail,
+          date: video.videoEntity.date,
+          lenght: video.videoEntity.lenght,
+          tags: video.videoEntity.tags,
+          categories: video.videoEntity.liaisons?.map((liaison) => ({
+        id: liaison.categoryEntity?.id,
+        name: liaison.categoryEntity?.category,
+        position: liaison.categoryEntity?.position,
+      })) || [],
         })
       );
 
-      //console.log("transformedVideoDescriptions :", transformedVideoDescriptions);
       return {
         id: categoryVideoDetails?.id,
         category: categoryVideoDetails?.category,
@@ -170,14 +182,19 @@ export class VideosService {
         // Données vidéo (imbriquées)
         video_entity: {
           id: favori.videoEntity.id,
+          position: favori.videoEntity.position,
           name: favori.videoEntity.name,
-          path: favori.videoEntity.path,
+          path: favori.videoEntity.fullVideoPath,
           isFreeVideo: favori.videoEntity.isFreeVideo,
           thumbnail: favori.videoEntity.thumbnail,
           date: favori.videoEntity.date,
           lenght: favori.videoEntity.lenght,
-          categoryId: favori.videoEntity.liaisons.map((categories) => categories.categorie_id),
-          categoryName: favori.videoEntity.liaisons.map((categories) => categories.categoryEntity.category)
+          tags: favori.videoEntity.tags,
+          categories: favori.videoEntity.liaisons.map((liaison) => ({
+            id: liaison.categoryEntity.id,
+        name: liaison.categoryEntity.category,
+        position: liaison.categoryEntity.position,
+      })),
         }
       }));
 
@@ -289,20 +306,20 @@ export class VideosService {
         
         // Données vidéo (imbriquées)
         video_entity: {
-          id: history.videoEntity.id,
-          name: history.videoEntity.name,
-          path: history.videoEntity.path,
-          isFreeVideo: history.videoEntity.isFreeVideo,
-          thumbnail: history.videoEntity.thumbnail,
-          date: history.videoEntity.date,
-          lenght: history.videoEntity.lenght,
-          //category: history.videoEntity.liaisons,
-          categories: history.videoEntity.liaisons.map(liaison => ({
-      id: liaison.categoryEntity.id,
-      name: liaison.categoryEntity.category,
-    })),
-          //categoryName: history.videoEntity.liaisons,
-          tags: history.videoEntity.tags
+           id: history.videoEntity.id,
+      position: history.videoEntity.position,
+      name: history.videoEntity.name,
+      path: history.videoEntity.path,
+      isFreeVideo: history.videoEntity.isFreeVideo,
+      thumbnail: history.videoEntity.thumbnail,
+      date: history.videoEntity.date,
+      lenght: history.videoEntity.lenght,
+      tags: history.videoEntity.tags,
+      categories: history.videoEntity.liaisons.map((liaison) => ({
+        id: liaison.categoryEntity.id,
+        name: liaison.categoryEntity.category,
+        position: liaison.categoryEntity.position,
+      })),
         }
       }));
       console.log("formattedHistoric :", formattedHistoric);
@@ -376,16 +393,19 @@ export class VideosService {
       if (videoDetails) {
         return {
           id: videoDetails.id,
-          name: videoDetails.name,
-          isFreeVideo: videoDetails.isFreeVideo,
-          date: videoDetails.date,
-          lenght: videoDetails.lenght,
-          thumbnail: videoDetails.thumbnail,
-          path: videoDetails.path,
-          category: videoDetails.liaisons.map((category) => { 
-            console.log(category.categoryEntity.category);
-            return category.categoryEntity.category}),
-          tags: videoDetails.tags
+      position: videoDetails.position,
+      name: videoDetails.name,
+      path: videoDetails.path,
+      isFreeVideo: videoDetails.isFreeVideo,
+      thumbnail: videoDetails.thumbnail,
+      date: videoDetails.date,
+      lenght: videoDetails.lenght,
+      tags: videoDetails.tags,
+      categories: videoDetails.liaisons.map((liaison) => ({
+        id: liaison.categoryEntity.id,
+        name: liaison.categoryEntity.category,
+        position: liaison.categoryEntity.position,
+      })),
         };
       } else {
         throw new Error('Video not found');
