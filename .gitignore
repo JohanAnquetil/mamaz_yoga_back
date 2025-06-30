@@ -43,3 +43,11 @@ mamaz_yoga.sql
 
 # Ignore macOS system files
 .DS_Store
+
+certbot-renew.sh
+mamaz_yoga_send.sql
+mod350_posts.sql
+mamaz_yoga_test
+mod350_postmeta.sql
+docker-compose.prod_old.yml
+
