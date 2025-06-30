@@ -34,6 +34,15 @@ export class UsersController {
     return tagsPreferences;
   }
 
+  @Get("tags-preferences/:id")
+  async getUserTagsPreferences(@Param("id") id: number) {
+    const tagsPreferences = await this.usersService.getUserTagsPreferences(id);
+    if (!tagsPreferences || tagsPreferences.length === 0) {
+      throw new NotFoundException("No tags preferences found");
+    }
+    return tagsPreferences;
+  }
+
   @Put("tags-preferences")
   async updateTagsPreferences(@Body() preferencesUser: PreferencesUserDTO) {
     console.log("Received preferencesUser:", preferencesUser);
