@@ -279,4 +279,15 @@ export class UsersService {
   async remove(id: number) {
     await this.userRepository.delete(id);
   }
+
+  async getUserTagsPreferences(id: number) {
+  const tagsPreferences = await this.tagPreferenceUserRepository.createQueryBuilder("tagsPreferences")
+    .where("tagsPreferences.user_id = :userId", { userId: id })
+    .getMany();
+  if (!tagsPreferences || tagsPreferences.length === 0) {
+    throw new NotFoundException(`No tags preferences found for user with id ${id}`);
+  }
+  console.log("tagsPreferences", tagsPreferences);
+  return tagsPreferences;
+}
 }
