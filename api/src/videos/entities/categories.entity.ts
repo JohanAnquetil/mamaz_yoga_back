@@ -19,6 +19,9 @@ export class VideoCategory {
     @Column({ type: "int", nullable: false, default: 0 })
     position!: number;
     
+    @Column("simple-array", { name: "tags", nullable: false, default:"" })
+    tags!: string[];
+
     @OneToMany(() => VideosLiaisonsCategoriesVideos, (liaison) => liaison.categoryEntity)
     liaisons!: VideosLiaisonsCategoriesVideos[]; 
 
