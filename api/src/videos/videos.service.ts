@@ -58,6 +58,7 @@ export class VideosService {
         id: liaison.categoryEntity.id,
         name: liaison.categoryEntity.category,
         position: liaison.categoryEntity.position,
+        tags: liaison.categoryEntity.tags,
       })),
     }));
     
@@ -105,6 +106,7 @@ export class VideosService {
         id: liaison.categoryEntity?.id,
         name: liaison.categoryEntity?.category,
         position: liaison.categoryEntity?.position,
+        tags: liaison.categoryEntity?.tags,
       })) || [],
         })
       );
@@ -194,6 +196,7 @@ export class VideosService {
             id: liaison.categoryEntity.id,
         name: liaison.categoryEntity.category,
         position: liaison.categoryEntity.position,
+        tags: liaison.categoryEntity.tags,
       })),
         }
       }));
@@ -319,6 +322,7 @@ export class VideosService {
         id: liaison.categoryEntity.id,
         name: liaison.categoryEntity.category,
         position: liaison.categoryEntity.position,
+        tags: liaison.categoryEntity.tags,
       })),
         }
       }));
@@ -405,6 +409,7 @@ export class VideosService {
         id: liaison.categoryEntity.id,
         name: liaison.categoryEntity.category,
         position: liaison.categoryEntity.position,
+        tags: liaison.categoryEntity.tags,
       })),
         };
       } else {
