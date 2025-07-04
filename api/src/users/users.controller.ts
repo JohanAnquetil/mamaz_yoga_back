@@ -19,7 +19,6 @@ import { TagsPreferencesUser } from "./entities/tags_preferences.entity";
 import { PreferencesUserDTO } from "./dto/preferences_user.dto";
 
 @Controller("users")
-@UseGuards(JwtAuthGuard)
 export class UsersController {
   constructor(
     private readonly usersService: UsersService,
@@ -60,6 +59,7 @@ export class UsersController {
   }
 
   @Get(":id")
+  @UseGuards(JwtAuthGuard)
   async findOne(@Param("id") id: string) {
     const user = await this.usersService.findOne(+id);
     try {
@@ -75,11 +75,13 @@ export class UsersController {
   }
 
   @Patch(":id")
+  @UseGuards(JwtAuthGuard)
   async update(@Param("id") id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(+id, updateUserDto);
   }
 
   @Delete(":id")
+  @UseGuards(JwtAuthGuard)
   remove(@Param("id") id: string) {
     return this.usersService.remove(+id);
   }
