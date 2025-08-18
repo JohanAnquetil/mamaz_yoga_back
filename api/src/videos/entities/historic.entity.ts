@@ -6,27 +6,22 @@ import { User } from "@app/users/entities/user.entity";
 @Entity('videos_history')
 export class VideosHistory {
   
-  // 🟢 Clés Primaires Composites
   @PrimaryColumn({ type: 'bigint' })
   video!: number;
 
   @PrimaryColumn({ type: 'bigint', unsigned: true })
   user!: number;
 
-  // 🟢 Colonne Date
   @Column({ type: 'datetime', nullable: false })
   date!: Date;
 
-  // 🟢 Durée de visionnage
   @Column({ type: 'bigint', default: 0, nullable: false })
   viewing_time_in_minutes!: number;
 
-  // 🟢 Relation avec Video
   @ManyToOne(() => VideoDescription, (video) => video.videoHistories, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'video' })
   videoEntity!: VideoDescription;
 
-  // 🟢 Relation avec User
   @ManyToOne(() => User, (user) => user.videoHistories, { eager: true })
    @JoinColumn({ name: 'user' })
    userEntity!: User;

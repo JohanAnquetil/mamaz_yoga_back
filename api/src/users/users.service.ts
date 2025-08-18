@@ -63,62 +63,6 @@ export class UsersService {
   return "Préférences de tags mises à jour avec succès";
 }
 
-
-  // async updateTagsPreferences(preferencesUser: PreferencesUserDTO) {
-  //   const { user_id, tags_id } = preferencesUser;
-
-  //   // Check if the user exists
-  //   const user = await this.userRepository.findOne({ where: { id: user_id } });
-  //   if (!user) {
-  //     throw new NotFoundException(`L'utilisateur avec l'id ${user_id} n'existe pas`);
-  //   }
-
-  //   // Check if the tag exists
-  //   const tag = await this.videosUserTagsRepository.findBy({ id: In(tags_id) });
-  //   if (!tag) {
-  //     throw new NotFoundException(`Le tag avec l'id ${tags_id} n'existe pas`);
-  //   }
-
-  //   // Create or update the preference
-  //   const preference = await this.tagPreferenceUserRepository.findOne({
-  //     where: { user_id, tags_id: In(tags_id) },
-  //   });
-
-  //   if (preference) {
-  //     // Update existing preference
-  //     // If tags_id is an array, update preferences for each tag
-  //     if (Array.isArray(tags_id)) {
-  //       // Remove existing preferences for this user
-  //       await this.tagPreferenceUserRepository.delete({ user_id });
-  //       // Create new preferences for each tag
-  //       const newPreferences = tags_id.map(tag_id => this.tagPreferenceUserRepository.create({ user_id, tags_id: tag_id }));
-  //       await this.tagPreferenceUserRepository.save(newPreferences);
-  //     } else {
-  //       preference.tags_id = tags_id;
-  //       await this.tagPreferenceUserRepository.save(preference);
-  //     }
-  //   } else {
-  //     // Create new preference
-  //     if (Array.isArray(tags_id)) {
-  //       const newPreferences = tags_id.map(tag_id =>
-  //         this.tagPreferenceUserRepository.create({
-  //           user_id,
-  //           tags_id: tag_id,
-  //         })
-  //       );
-  //       await this.tagPreferenceUserRepository.save(newPreferences);
-  //     } else {
-  //       const newPreference = this.tagPreferenceUserRepository.create({
-  //         user_id,
-  //         tags_id,
-  //       });
-  //       await this.tagPreferenceUserRepository.save(newPreference);
-  //     }
-  //   }
-
-  //   return "Préférence de tags mise à jour avec succès";
-  // }
-
   async findAll(): Promise<Record<string, any> | string> {
     const queryAllUsers: User[] = await this.userRepository.find();
 
