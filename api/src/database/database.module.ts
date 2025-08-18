@@ -69,36 +69,3 @@ import { env } from "process";
   ],
 })
 export class DataBaseModule {}
-
-// import { Member } from "@app/members/entities/member.entity";
-// import { PostNews } from "@app/posts/entities/post-news.entity";
-// import { PostsMeta } from "@app/posts_meta/entities/posts_meta.entity";
-// import { SubscriptionPlan } from "@app/subscription_plans/entities/subscription_plan.entity";
-// import { User } from "@app/users/entities/user.entity";
-// import { UsersMeta } from "@app/users_meta/entities/users_meta.entity";
-// import { Module } from "@nestjs/common";
-// import { TypeOrmModule } from "@nestjs/typeorm";
-
-// @Module({
-//   imports: [
-//     TypeOrmModule.forRoot({
-//       type: "mysql",
-//       host:"db",
-//       //host: "localhost",
-//       port:3306,
-//       username: "root",
-//       password: "test",
-//       database: "mamazYoga2",
-//       entities: [
-//         Member,
-//         PostNews,
-//         PostsMeta,
-//         UsersMeta,
-//         User,
-//         SubscriptionPlan,
-//       ],
-//       //synchronize: true,
-//     }),
-//   ],
-// })
-// export class DataBaseModule {}

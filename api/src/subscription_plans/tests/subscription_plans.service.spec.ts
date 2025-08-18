@@ -80,41 +80,6 @@ describe('SubscriptionPlansService', () => {
     });
   });
 
-  // describe('findOne', () => {
-  //   it('should return a subscription plan by ID', async () => {
-  //     const subscriptionPlan = {
-  //       armSubscriptionPlanId: 1,
-  //       armSubscriptionPlanName: 'Basic Plan',
-  //       armSubscriptionPlanType: 'monthly',
-  //       armSubscriptionPlanDescription: 'test',
-  //       armSubscriptionPlanRole: 'user',
-  //       armSubscriptionPlanAmount: 100,
-  //       armSubscriptionPlanStatus: 1,
-  //       armSubscriptionPlanPostId: 1,
-  //       armSubscriptionPlanGiftStatus: 0,
-  //       armSubscriptionPlanIsDelete: 0,
-  //       armSubscriptionPlanCreatedDate: new Date(),
-  //       armSubscriptionPlanOptions:'a:1:{i:0;s:6:"option1";}',
-  //     };
-
-  //     // Simuler la réponse attendue
-  //     jest.spyOn(repository, 'findOne').mockResolvedValue(subscriptionPlan as any);
-
-  //     const result = await service.findOne(1);
-
-  //     console.log({result})
-  //     console.log({subscriptionPlan})
-
-  //     expect(result).toEqual([subscriptionPlan]);
-  //   });
-
-  //   it('should throw NotFoundException if subscription plan is not found', async () => {
-  //     jest.spyOn(repository, 'findOne').mockResolvedValue(null);
-
-  //     await expect(service.findOne(1)).rejects.toThrow(NotFoundException);
-  //   });
-  // });
-
   describe('update', () => {
     it('should successfully update a subscription plan', async () => {
       // Simuler la réponse attendue pour `update`

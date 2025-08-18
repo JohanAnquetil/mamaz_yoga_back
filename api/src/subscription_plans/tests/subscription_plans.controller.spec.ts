@@ -73,27 +73,6 @@ describe('SubscriptionPlansController', () => {
     });
   });
 
-  // describe('findOne', () => {
-  //   it('should return a subscription plan by ID', async () => {
-  //     const result = [{
-  //       armSubscriptionPlanId: 1,
-  //       armSubscriptionPlanName: 'Basic Plan',
-  //       armSubscriptionPlanType: 'monthly',
-  //       armSubscriptionPlanRole: 'user',
-  //       armSubscriptionPlanAmount: 100,
-  //       armSubscriptionPlanStatus: 1,
-  //       armSubscriptionPlanPostId: 1,
-  //       armSubscriptionPlanGiftStatus: 0,
-  //       armSubscriptionPlanIsDelete: 0,
-  //       armSubscriptionPlanCreatedDate: new Date(),
-  //     }];
-
-  //     jest.spyOn(service, 'findOne').mockResolvedValue(result);
-
-  //     expect(await controller.findOne('1')).toBe(result);
-  //   });
-  // });
-
   describe('update', () => {
     it('should update a subscription plan', async () => {
       const updateDto: UpdateSubscriptionPlanDto = { armSubscriptionPlanName: 'Updated Plan' };

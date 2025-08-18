@@ -18,19 +18,6 @@ export class JwtAuthGuard extends AuthGuard("jwt") {
     if (err || !user) {
       throw err || new UnauthorizedException();
     }
-
-    // Need to check if it is a good idea
-   // const userIdRequest = context.switchToHttp().getRequest().body.user_id;
-
-    // if (!userIdRequest)
-    //   throw new UnauthorizedException(
-    //     "Ajouter un ID dans le body de la requete",
-    //   );
-
-    // if (userIdRequest !== user.id) {
-    //   throw new UnauthorizedException("ID utilisateur non valide");
-    // }
-
     return user;
   }
 }
