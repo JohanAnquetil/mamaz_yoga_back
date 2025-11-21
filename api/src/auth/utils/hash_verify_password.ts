@@ -1,5 +1,6 @@
 import * as utf8 from "utf8";
 import { PasswordHash } from "./password_hasher";
+import { verifyWpPassword } from "./hash_password_new_version";
 
 // Define constants for password hashing configuration
 
@@ -9,6 +10,7 @@ const portable = true;
 const phpversion = 7;
 
 // Hash a password using the specified hashing algorithm and UTF-8 encoding.
+
 async function hashPassword(password: any) {
   const hasher = new PasswordHash(len, portable, phpversion);
   const encodedPassword = utf8.encode(password);
@@ -21,9 +23,12 @@ async function hashPassword(password: any) {
 }
 // Verify a password against a stored hash.
 function verifyPassword(password: any, storedHash: any) {
-  const hasher = new PasswordHash(len, portable, phpversion);
-  const encodedPassword = utf8.encode(password);
-  return hasher.CheckPassword(encodedPassword, storedHash);
+  if (storedHash.startsWith("$P$")) {
+    const hasher = new PasswordHash(len, portable, phpversion);
+    const encodedPassword = utf8.encode(password);
+    return hasher.CheckPassword(encodedPassword, storedHash);
+  }
+    else { return verifyWpPassword(password, storedHash); }   
 }
 
 export { hashPassword, verifyPassword };
