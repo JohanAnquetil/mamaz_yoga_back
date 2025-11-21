@@ -28,7 +28,7 @@ function verifyPassword(password: any, storedHash: any) {
     const encodedPassword = utf8.encode(password);
     return hasher.CheckPassword(encodedPassword, storedHash);
   }
-    else { return verifyWpPassword(password, storedHash); }   
+  return verifyWpPassword(password, storedHash); 
 }
 
 export { hashPassword, verifyPassword };

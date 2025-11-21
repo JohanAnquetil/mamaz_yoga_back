@@ -7,7 +7,7 @@ async function loginUser(password: string, storedHash: string): Promise<boolean>
   if (!isValid) {
     throw new HttpException(`Utilisateur ou mot de passe inconnu`, 401);
   }
-  return isValid;
+  return true;
 }
 
 export { loginUser };
