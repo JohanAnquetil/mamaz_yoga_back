@@ -5,6 +5,7 @@ export async function verifyWpPassword(
   password: string,
   hash: string
 ): Promise<boolean> {
+  console.log("Vérification du mot de passe avec le hash dans verify password :", hash);
 
   // WordPress modern hash: $wp$2y$...
   if (hash.startsWith("$wp")) {
@@ -22,7 +23,8 @@ export async function verifyWpPassword(
 
     // Node bcrypt patch: convert $2y$ → $2b$
     realHash = realHash.replace(/^\$2y\$/, "$2b$");
-
+    console.log("Mot de passe transformé pour bcrypt:", transformed);
+    console.log("Hash réel après transformation:", realHash);
     return bcrypt.compare(transformed, realHash);
   }
 

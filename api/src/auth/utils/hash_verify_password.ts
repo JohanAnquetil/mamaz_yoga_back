@@ -26,7 +26,11 @@ function verifyPassword(password: any, storedHash: any) {
   if (storedHash.startsWith("$P$")) {
     const hasher = new PasswordHash(len, portable, phpversion);
     const encodedPassword = utf8.encode(password);
-    return hasher.CheckPassword(encodedPassword, storedHash);
+    console.log("Vérification avec PasswordHash pour le hash:", storedHash);
+    console.log("Mot de passe encodé:", encodedPassword);
+    const isValid = hasher.CheckPassword(encodedPassword, storedHash);
+    console.log("Résultat de la vérification:", isValid);
+    return isValid;
   }
   return verifyWpPassword(password, storedHash); 
 }
