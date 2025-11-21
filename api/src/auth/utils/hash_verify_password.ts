@@ -23,6 +23,7 @@ async function hashPassword(password: any) {
 }
 // Verify a password against a stored hash.
 function verifyPassword(password: any, storedHash: any) {
+  
   if (storedHash.startsWith("$P$")) {
     const hasher = new PasswordHash(len, portable, phpversion);
     const encodedPassword = utf8.encode(password);
