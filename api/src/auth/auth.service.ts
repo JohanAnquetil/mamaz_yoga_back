@@ -33,7 +33,8 @@ export class AuthService {
     const hasActivePremiumSubscription: boolean =
       userDetails?.data.has_active_premium_subscription ?? false;
 
-    const isValid = loginUser(password, user.userPass);
+    const isValid = await loginUser(password, user.userPass);
+    console.log("Résultat de la validation de l'utilisateur :", isValid);
 
     if (!isValid) {
       throw new HttpException(
