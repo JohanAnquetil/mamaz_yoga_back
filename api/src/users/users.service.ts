@@ -189,8 +189,16 @@ export class UsersService {
           memberAccountData.data["plan_actuel"]["arm_start_plan"] =
             armStartPlan;
           memberAccountData.data["plan_actuel"]["arm_expire_plan"] = armEndPlan;
-          memberAccountData.data["has_active_premium_subscription"] =
-            isExpiredSubscription(armEndPlan) as boolean ?? isExpiredSubscription(detailsCurrentPlan.arm_trial_end);
+          console.log(isExpiredSubscription(armEndPlan));
+          console.log(detailsCurrentPlan.arm_trial_end);
+          console.log(isExpiredSubscription(detailsCurrentPlan.arm_trial_end));
+          const premiumStatus = isExpiredSubscription(armEndPlan);
+            memberAccountData.data["has_active_premium_subscription"] =
+              typeof premiumStatus === "boolean"
+                ? premiumStatus
+                : !!isExpiredSubscription(detailsCurrentPlan.arm_trial_end);
+          // memberAccountData.data["has_active_premium_subscription"] =
+          //   isExpiredSubscription(armEndPlan) as boolean ?? isExpiredSubscription(detailsCurrentPlan.arm_trial_end);
           if (
             detailsCurrentPlan.arm_current_plan_detail
               .arm_subscription_plan_options
