@@ -45,11 +45,11 @@ export class AuthService {
 
     // Créez un nouvel objet UserWithPremium en ajoutant is_premium
     const userWithPremium: UserWithPremium = {
-      ...user, // Copie toutes les propriétés de l'objet user
-      is_premium: hasActivePremiumSubscription, // Ajoute la propriété is_premium
+      ...user,
+      is_premium: hasActivePremiumSubscription,
     };
 
-    return userWithPremium; // Retourne l'objet UserWithPremium
+    return userWithPremium;
   }
 
   generateToken(user: UserLogin): string {

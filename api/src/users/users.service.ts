@@ -190,7 +190,7 @@ export class UsersService {
             armStartPlan;
           memberAccountData.data["plan_actuel"]["arm_expire_plan"] = armEndPlan;
           memberAccountData.data["has_active_premium_subscription"] =
-            isExpiredSubscription(armEndPlan) as boolean;
+            isExpiredSubscription(armEndPlan) as boolean ?? isExpiredSubscription(detailsCurrentPlan.arm_trial_end);
           if (
             detailsCurrentPlan.arm_current_plan_detail
               .arm_subscription_plan_options
