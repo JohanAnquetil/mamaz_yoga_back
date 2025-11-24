@@ -189,6 +189,9 @@ export class UsersService {
           memberAccountData.data["plan_actuel"]["arm_start_plan"] =
             armStartPlan;
           memberAccountData.data["plan_actuel"]["arm_expire_plan"] = armEndPlan;
+          console.log({armEndPlan});
+          console.log({detailsCurrentPlan});
+          console.log(detailsCurrentPlan.arm_trial_end);
           console.log(isExpiredSubscription(armEndPlan));
           console.log(detailsCurrentPlan.arm_trial_end);
           console.log(isExpiredSubscription(detailsCurrentPlan.arm_trial_end));
