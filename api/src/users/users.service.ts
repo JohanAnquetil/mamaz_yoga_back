@@ -118,9 +118,6 @@ export class UsersService {
       await this.subscriptionPlansService.loadIdsSubscriptionPlans(
         "arm_user_plan_",
       );
-    console.log(
-      `allSubscriptionsPlansIds in user service; ${allSubscriptionsPlansIds}`,
-    );
 
     let memberAccountData: Record<string, any> = {
       message: "Données du client trouvées",
@@ -178,20 +175,37 @@ export class UsersService {
         if (
           allSubscriptionsPlansIds.some((input) => input == usersMeta.metaKey)
         ) {
-          const detailsCurrentPlan = unserialize(usersMeta.metaValue);
+          try {
+          // Assign detailsCurrentPlan from unserialized metaValue
+         const emojiRegex = /([\u231A-\uD83E\uDDFF])/gu;
+          const emojis = usersMeta.metaValue.match(emojiRegex);
+         
+          const cleanedMetaValue = usersMeta.metaValue.replace(emojiRegex, "    ");
+         const detailsCurrentPlan = unserialize(cleanedMetaValue);
+
           memberAccountData.data["plan_actuel"] = detailsCurrentPlan;
+          
           const armStartPlan = dateConversionUnixToIso(
             detailsCurrentPlan.arm_start_plan,
           );
           const armEndPlan = dateConversionUnixToIso(
             detailsCurrentPlan.arm_expire_plan,
           );
-          memberAccountData.data["plan_actuel"]["arm_start_plan"] =
-            armStartPlan;
-          memberAccountData.data["plan_actuel"]["arm_expire_plan"] = armEndPlan;
 
-          console.log({detailsCurrentPlan});
+          const armStartTrial = dateConversionUnixToIso(
+            detailsCurrentPlan.arm_trial_start,
+          );
+          const armEndTrial = dateConversionUnixToIso(
+            detailsCurrentPlan.arm_trial_end,
+          );
           
+          const today = new Date().toISOString()
+          memberAccountData.data["plan_actuel"]["arm_start_plan"] =
+            (armStartTrial == undefined || armStartTrial == null || armStartPlan < today ) ? armStartPlan : armStartTrial;
+          memberAccountData.data["plan_actuel"]["arm_expire_plan"] = 
+            (armEndTrial == undefined || armEndTrial == null || armStartPlan < today) ? armEndPlan : armEndTrial;
+
+
           // console.log(detailsCurrentPlan.arm_trial_end);
           // console.log(isExpiredSubscription(armEndPlan));
           // console.log(detailsCurrentPlan.arm_trial_end);
@@ -201,15 +215,16 @@ export class UsersService {
           //     typeof premiumStatus === "boolean"
           //       ? premiumStatus
           //       : !!isExpiredSubscription(detailsCurrentPlan.arm_trial_end);
+          
           memberAccountData.data["has_active_premium_subscription"] =
-            isExpiredSubscription(armEndPlan) as boolean ?? false;
+            isExpiredSubscription(armEndPlan) as boolean || isExpiredSubscription(dateConversionUnixToIso(detailsCurrentPlan.arm_trial_end));
           if (
-            detailsCurrentPlan.arm_current_plan_detail
+            detailsCurrentPlan?.arm_current_plan_detail
               .arm_subscription_plan_options
           ) {
             try {
               memberAccountData.data["options_du_plan"] = unserialize(
-                detailsCurrentPlan.arm_current_plan_detail
+                detailsCurrentPlan?.arm_current_plan_detail
                   .arm_subscription_plan_options,
               );
               delete memberAccountData.data.plan_actuel
@@ -218,12 +233,14 @@ export class UsersService {
               console.log(`Error unserialisation php plan option ${e}`);
             }
           }
+        } catch (e) {
+          console.log(`Error processing plan data: ${e}`);
         }
-      });
-    } catch (error) {
-      console.log(error);
+      }
+    })
+    } catch (e) {
+      console.log(`Error processing user metas: ${e}`);
     }
-
     return memberAccountData;
   }
 
