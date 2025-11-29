@@ -362,20 +362,35 @@ async syncUserMetaFromOrigin(userId: number) {
   console.log(`🟢 Usermeta importés pour user ${userId}`);
 }
 
-// async updateHashPasswords() {
-//   const usersLocal = await this.userRepository.find();
-//   console.log({usersLocal});
+async updateHashPasswords() {
+  const usersLocal = await this.userRepository.find();
+  console.log({usersLocal});
 
-//   const usersOrigin = await fetch("https://mamazyoga.com/wp-json/mamaz/v1/users", {
-  
+    // API WordPress
+  const response = await fetch("https://mamazyoga.com/wp-json/mamaz/v1/users_list", {
+    method: "GET",
+    headers: { "x-mamaz-key": "TA_SUPER_CLE_API_SECRETE" }
+  });
 
-//   for (const user of usersLocal) {
-//     // Simule une nouvelle hash de mot de passe (remplace ceci par ta logique réelle)
-//     const newHash = `new_hash_for_${user.userLogin}`;
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
 
-//     user.userPass = newHash;
-//     await this.userRepository.save(user);
-//     console.log(`🔄 Mot de passe mis à jour pour l'utilisateur ${user.userLogin}`);
-//   }
-// }
+  const data = await response.json();
+  const allUsers = data.users.map((u: any) => ({
+    id: Number(u.ID),
+    userLogin: u.user_login,
+    userPass: u.user_pass,
+  }));
+  console.log({allUsers});
+
+  for (const user of usersLocal) {
+    const matchingUser = allUsers.find((u: any) => u.id === Number(user.id) && u.userLogin === user.userLogin);
+    if (matchingUser && user.userPass !== matchingUser.userPass) {
+      return (`🔄 Mot de passe mis à jour pour l'utilisateur ${user.userLogin}`);
+    } else {
+     console.log(`Aucun changement de mot de passe pour l'utilisateur ${user.userLogin}`);
+    }
+  };
+};
 }

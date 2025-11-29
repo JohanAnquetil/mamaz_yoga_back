@@ -53,11 +53,11 @@ async compareUsersIdsOrigin() {
   return { synced: diff };
 }
 
-// @Get("update_hash_passwords")
-// async updateHashPasswords() {
-//   await this.usersService.updateHashPasswords();
-//   return { message: "Password hashes updated successfully." };
-// }
+@Get("update_hash_passwords")
+async updateHashPasswords() {
+  await this.usersService.updateHashPasswords();
+  return { message: "Password hashes updated successfully." };
+}
 
 
   @Get("tags-preferences/:id")
