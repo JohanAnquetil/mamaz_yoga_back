@@ -11,6 +11,9 @@ import { dateConversionUnixToIso } from "./utils/date_conversion";
 import { TagsPreferencesUser } from "./entities/tags_preferences.entity";
 import { PreferencesUserDTO } from "./dto/preferences_user.dto";
 import { VideosUserTags } from "./entities/tags";
+// @ts-ignore
+import fetch from 'node-fetch';
+import { UsersMeta } from "@app/users_meta/entities/users_meta.entity";
 
 @Injectable()
 export class UsersService {
@@ -22,6 +25,8 @@ export class UsersService {
     private readonly tagPreferenceUserRepository : Repository<TagsPreferencesUser>,
     @InjectRepository(VideosUserTags)
     private readonly videosUserTagsRepository: Repository<VideosUserTags>,
+    @InjectRepository(UsersMeta)
+    private readonly usersMetaRepository: Repository<UsersMeta>,
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<void> {
@@ -263,4 +268,114 @@ export class UsersService {
   console.log("tagsPreferences", tagsPreferences);
   return tagsPreferences;
 }
+
+async compareUsersIdsOrigin() {
+  console.log("Comparing user IDs origin...");
+
+  // IDs locaux
+  const users = await this.userRepository.find();
+  const localIds = users.map(u => Number(u.id));
+
+  // API WordPress
+  const response = await fetch("https://mamazyoga.com/wp-json/mamaz/v1/users_list", {
+    method: "GET",
+    headers: { "x-mamaz-key": "TA_SUPER_CLE_API_SECRETE" }
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  const data = await response.json();
+  const originIds = data.user_ids.map(Number);
+
+  // Différences
+  const diff = originIds.filter((id :any) => !localIds.includes(id));
+
+  console.log("Missing IDs:", diff);
+
+  return { diff };
+}
+async syncOneUserFromOrigin(id: number) {
+
+  const wpUserRes = await fetch(`https://mamazyoga.com/wp-json/mamaz/v1/user/${id}`, {
+    method: "GET",
+    headers: { "x-mamaz-key": "TA_SUPER_CLE_API_SECRETE" }
+  });
+
+  if (!wpUserRes.ok) {
+    console.error(`❌ WP: impossible de récupérer user ${id}`);
+    return null;
+  }
+
+  const wpUserData = await wpUserRes.json();
+
+  const dto = {
+    id: Number(wpUserData.user.ID),
+    userLogin: wpUserData.user.user_login,
+    userPass: wpUserData.user.user_pass,
+    userNicename: wpUserData.user.user_nicename,
+    userEmail: wpUserData.user.user_email,
+    userUrl: wpUserData.user.user_url ?? "",
+    userRegistered: wpUserData.user.user_registered,
+    userActivationKey: wpUserData.user.user_activation_key ?? "",
+    userStatus: Number(wpUserData.user.user_status),
+    displayName: wpUserData.user.display_name,
+  };
+
+  await this.userRepository.save(dto);
+
+  console.log(`✅ User ${id} synchronisé avec succès !`);
+
+  return dto;
+}
+
+async syncUserMetaFromOrigin(userId: number) {
+
+  const wpRes = await fetch(`https://mamazyoga.com/wp-json/mamaz/v1/user_meta/${userId}`, {
+    method: "GET",
+    headers: { "x-mamaz-key": "TA_SUPER_CLE_API_SECRETE" }
+  });
+
+  if (!wpRes.ok) {
+    console.error(`❌ Impossible de récupérer les usermeta pour ${userId}`);
+    return;
+  }
+
+  const wpMetaData = await wpRes.json();
+  const meta = wpMetaData.meta;
+
+  // Boucle sur tous les usermeta
+  for (const key of Object.keys(meta)) {
+
+    const value = meta[key];
+
+    const dto = {
+      userId,
+      metaKey: key,
+      metaValue: value === null ? "" : String(value),
+    };
+
+    await this.usersMetaRepository.save(dto); // Ton repository users_meta
+  }
+
+  console.log(`🟢 Usermeta importés pour user ${userId}`);
+}
+
+// async updateHashPasswords() {
+//   const usersLocal = await this.userRepository.find();
+//   console.log({usersLocal});
+
+//   const usersOrigin = await fetch("https://mamazyoga.com/wp-json/mamaz/v1/users", {
+  
+
+//   for (const user of usersLocal) {
+//     // Simule une nouvelle hash de mot de passe (remplace ceci par ta logique réelle)
+//     const newHash = `new_hash_for_${user.userLogin}`;
+
+//     user.userPass = newHash;
+//     await this.userRepository.save(user);
+//     console.log(`🔄 Mot de passe mis à jour pour l'utilisateur ${user.userLogin}`);
+//   }
+// }
 }

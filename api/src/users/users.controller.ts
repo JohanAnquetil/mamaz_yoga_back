@@ -33,6 +33,33 @@ export class UsersController {
     return tagsPreferences;
   }
 
+@Get("compare-users-ids-origin")
+async compareUsersIdsOrigin() {
+  const result = await this.usersService.compareUsersIdsOrigin();
+
+  const { diff } = result;
+
+  if (!diff || diff.length === 0) {
+    throw new NotFoundException("No differences found between origin and local user IDs");
+  }
+
+  // Boucle de synchro
+  for (const id of diff) {
+    console.log(`🔍 Synchronisation du user ${id}...`);
+    await this.usersService.syncOneUserFromOrigin(id);
+     await this.usersService.syncUserMetaFromOrigin(id);
+  }
+
+  return { synced: diff };
+}
+
+// @Get("update_hash_passwords")
+// async updateHashPasswords() {
+//   await this.usersService.updateHashPasswords();
+//   return { message: "Password hashes updated successfully." };
+// }
+
+
   @Get("tags-preferences/:id")
   async getUserTagsPreferences(@Param("id") id: number) {
     const tagsPreferences = await this.usersService.getUserTagsPreferences(id);

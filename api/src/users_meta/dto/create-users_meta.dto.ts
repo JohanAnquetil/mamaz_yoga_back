@@ -1,9 +1,9 @@
 import { IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
 
 export class CreateUsersMetaDto {
+  @IsOptional()
   @IsNumber()
-  @IsNotEmpty()
-  umetaId!: number;
+  umetaId?: number
 
   @IsNumber()
   @IsNotEmpty()
