@@ -53,12 +53,16 @@ async compareUsersIdsOrigin() {
   return { synced: diff };
 }
 
-@Get("update_hash_passwords")
-async updateHashPasswords() {
-  await this.usersService.updateHashPasswords();
-  return { message: "Password hashes updated successfully." };
-}
+  @Get("update-hash-passwords")
+  async updateHashPasswords() {
+    return await this.usersService.updateHashPasswords();
+    //return { message: "Password hashes updated successfully." };
+  }
 
+  @Get("sync-users-metas-from-origin")
+  async syncUsersMetasFromOrigin() {
+    return await this.usersService.syncUsersMetasFromOrigin();
+  }
 
   @Get("tags-preferences/:id")
   async getUserTagsPreferences(@Param("id") id: number) {

@@ -364,7 +364,6 @@ async syncUserMetaFromOrigin(userId: number) {
 
 async updateHashPasswords() {
   const usersLocal = await this.userRepository.find();
-  console.log({usersLocal});
 
     // API WordPress
   const response = await fetch("https://mamazyoga.com/wp-json/mamaz/v1/users_list", {
@@ -382,15 +381,154 @@ async updateHashPasswords() {
     userLogin: u.user_login,
     userPass: u.user_pass,
   }));
-  console.log({allUsers});
+  // Affiche les deux hash user_pass pour l'id 333 (origin et local)
+  const user333Origin = allUsers.find((u: any) => u.id === 333);
+  const user333Local = usersLocal.find((u: any) => Number(u.id) === 333);
+  if (user333Origin && user333Local) {
+    console.log(`user_pass pour l'id 333 (WordPress):`, user333Origin.userPass);
+    console.log(`user_pass pour l'id 333 (Local):`, user333Local.userPass);
+  } else {
+    if (!user333Origin) console.log("Aucun utilisateur avec l'id 333 trouvé dans la liste WordPress.");
+    if (!user333Local) console.log("Aucun utilisateur avec l'id 333 trouvé dans la base locale.");
+  }
 
   for (const user of usersLocal) {
-    const matchingUser = allUsers.find((u: any) => u.id === Number(user.id) && u.userLogin === user.userLogin);
+    const matchingUser = allUsers.find((allUser: any) => allUser.id === Number(user.id) && allUser.userLogin === user.userLogin);
+    console.log({matchingUser});
     if (matchingUser && user.userPass !== matchingUser.userPass) {
-      return (`🔄 Mot de passe mis à jour pour l'utilisateur ${user.userLogin}`);
+      console.log(`🔄 Mot de passe mis à jour pour l'utilisateur ${user.userLogin}`);
+      console.log(`nouveau hash : ${matchingUser.userPass}`);
+      await this.userRepository.update(user.id, { userPass: matchingUser.userPass });
     } else {
      console.log(`Aucun changement de mot de passe pour l'utilisateur ${user.userLogin}`);
     }
   };
 };
+
+async syncUsersMetasFromOrigin() {
+
+  const usersMetaLocal = await this.usersMetaRepository.find();
+
+  // console.log({ usersMetaLocal });
+  console.log("Local user metas:", usersMetaLocal[333]);
+  console.log("log Total local user metas:", usersMetaLocal[13261]);
+  
+  
+    // API WordPress
+  const response = await fetch("https://mamazyoga.com/wp-json/mamaz/v1/get_all_user_meta", {
+    method: "GET",
+    headers: { "x-mamaz-key": "TA_SUPER_CLE_API_SECRETE" }
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  const responseFromFetch = await response.json();
+
+  const allMeta = responseFromFetch.all_meta;
+
+  const wpFlattened = [];
+
+  for (const [userId, metas] of Object.entries(allMeta)) {
+    const metasTyped = metas as WPUserMeta;
+
+    for (const [metaKey, metaValues] of Object.entries(metasTyped)) {
+      wpFlattened.push({
+        userId: Number(userId),
+        metaKey,
+        metaValue: metaValues[0] ?? null
+      });
+    }
+  }
+
+  console.log(`Total origin user metas fetched: ${wpFlattened.length}`);
+  console.log("Sample origin user meta:", wpFlattened[1]);
+
+
+  //console.log(`Origin user metas fetched: ${JSON.stringify(data, null, 2)}`);
+
+  // console.log({ data });
+  //console.log("Total origin user metas:", data.user_metas);
+
+  // for (const wpUserMeta of wpFlattened) {
+  //   const userId = Number(wpUserMeta.userId);
+  //   const metaKey = wpUserMeta.metaKey;
+  //   const metaValue = wpUserMeta.metaValue === null ? "" : String(wpUserMeta.metaValue);
+
+  //   const existingMeta = usersMetaLocal.find(um => um.userId === userId && um.metaKey === metaKey);
+
+  //   if (!existingMeta) {
+  //     // Crée une nouvelle entrée si elle n'existe pas
+  //     const dto = {
+  //       userId,
+  //       metaKey,
+  //       metaValue,
+  //     };
+  //     await this.usersMetaRepository.save(dto);
+  //     console.log(`➕ Nouveau usermeta ajouté pour user ${userId}, clé: ${metaKey}`);
+  //   } else if (existingMeta.metaValue !== metaValue) {
+  //     // Met à jour l'entrée existante si la valeur a changé
+  //     await this.usersMetaRepository.update(existingMeta.umetaId, { metaValue });
+  //     console.log(`🔄 Usermeta mis à jour pour user ${userId}, clé: ${metaKey}`);
+  //   } else {
+  //     console.log(`✅ Usermeta inchangé pour user ${userId}, clé: ${metaKey}`);
+  //   }
+  // }
+// for (const origin of wpFlattened) {
+//   const { userId, metaKey, metaValue } = origin;
+
+//   const existing = usersMetaLocal.find(
+//     (m) => m.userId === userId && m.metaKey === metaKey
+//   );
+
+//   // 🔹 1. SI le meta existe en local, on le remplace
+//   if (existing) {
+//     if (existing.metaValue !== metaValue) {
+//       await this.usersMetaRepository.update(existing.umetaId, {
+//         metaValue,
+//       });
+//       console.log(`🔄 Mis à jour user ${userId}, key ${metaKey}`);
+//     } else {
+//       console.log(`✅ Inchangé user ${userId}, key ${metaKey}`);
+//     }
+//   }
+
+//   // 🔹 2. SI le meta n'existe pas en local → on ignore complètement
+//   else {
+//     console.log(`⏭️ Ignoré (absent en local) user ${userId}, key ${metaKey}`);
+//   }
+// }
+
+for (const origin of wpFlattened) {
+  const { userId, metaKey } = origin;
+
+  // Normalisation WordPress → string
+  const metaValue = origin.metaValue === null ? "" : String(origin.metaValue);
+
+  const existing = usersMetaLocal.find(
+    (m) => m.userId === userId && m.metaKey === metaKey
+  );
+
+  // 🔹 1. SI le meta existe en local, on le remplace
+  if (existing) {
+    if (existing.metaValue !== metaValue) {
+      await this.usersMetaRepository.update(existing.umetaId, { metaValue });
+      console.log(`🔄 Mis à jour user ${userId}, key ${metaKey}`);
+    } else {
+      console.log(`✅ Inchangé user ${userId}, key ${metaKey} from ${existing.metaValue}`);
+    }
+  }
+
+  // 🔹 2. SI le meta n'existe pas en local → on ignore
+  else {
+    console.log(`⏭️ Ignoré (absent en local) user ${userId}, key ${metaKey}`);
+  }
 }
+
+}
+
+}
+type WPUserMeta = Record<string, string[]>;
+
+type WPAllMeta = Record<string, WPUserMeta>;
