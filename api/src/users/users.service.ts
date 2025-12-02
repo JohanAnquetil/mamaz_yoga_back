@@ -14,6 +14,7 @@ import { VideosUserTags } from "./entities/tags";
 // @ts-ignore
 import fetch from 'node-fetch';
 import { UsersMeta } from "@app/users_meta/entities/users_meta.entity";
+import { SubscriptionPlan } from "@app/subscription_plans/entities/subscription_plan.entity";
 
 @Injectable()
 export class UsersService {
@@ -27,7 +28,72 @@ export class UsersService {
     private readonly videosUserTagsRepository: Repository<VideosUserTags>,
     @InjectRepository(UsersMeta)
     private readonly usersMetaRepository: Repository<UsersMeta>,
+    @InjectRepository(SubscriptionPlan)
+    private readonly subscriptionPlanRepositoryRepository: Repository<SubscriptionPlan>,
   ) {}
+
+  async syncArmSubscriptionsPlan() {
+  const arm_subscriptions_plans_local = await this.subscriptionPlansService.findAll();
+  console.log("arm_subscriptions_plans_local", arm_subscriptions_plans_local);
+
+  try {
+    const response = await fetch("https://mamazyoga.com/wp-json/mamaz/v1/get_all_plans", {
+      method: "GET",
+      headers: { "x-mamaz-key": "TA_SUPER_CLE_API_SECRETE" }
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const arm_subscriptions_plans_api = data.plans;
+
+    console.log("Data fetched successfully:", arm_subscriptions_plans_api);
+
+    // Traiter chaque plan de l'API
+    await Promise.all(
+      arm_subscriptions_plans_api.map(async (plan: any) => {
+        console.log("Processing plan from API:", plan);
+
+        // Vérifier si le plan existe déjà localement
+        const existsLocally = arm_subscriptions_plans_local.find(
+          (localPlan: any) => localPlan.armSubscriptionPlanId === plan.arm_subscription_plan_id
+        );
+
+        if (!existsLocally) {
+          // Crée une nouvelle entrée si elle n'existe pas
+          const dto = {
+            armSubscriptionPlanId: plan.arm_subscription_plan_id,
+            armSubscriptionPlanName: plan.arm_subscription_plan_name,
+            armSubscriptionPlanDescription: plan.arm_subscription_plan_description || "",
+            armSubscriptionPlanType: plan.arm_subscription_plan_type || "unknown",
+            armSubscriptionPlanOptions: plan.arm_subscription_plan_options || "{}",
+            armSubscriptionPlanAmount: plan.arm_subscription_plan_amount || 0,
+            armSubscriptionPlanStatus: plan.arm_subscription_plan_status || "inactive",
+            armSubscriptionPlanPostId: plan.arm_subscription_plan_post_id || 0,
+            armSubscriptionPlanGiftStatus: plan.arm_subscription_plan_gift_status || 0,
+            armSubscriptionPlanIsDelete: plan.arm_subscription_plan_is_delete || 0,
+            armSubscriptionPlanCreatedDate: new Date(plan.arm_subscription_plan_created_date),
+            armSubscriptionPlanRole: plan.arm_subscription_plan_role || "default",
+          };
+
+          try {
+            await this.subscriptionPlanRepositoryRepository.save(dto);
+            console.log(`➕ Nouveau plan ajouté : ${plan.arm_subscription_plan_name} (ID: ${plan.arm_subscription_plan_id})`);
+          } catch (saveError) {
+            console.error(`❌ Erreur lors de l'ajout du plan ID: ${plan.arm_subscription_plan_id}`, saveError);
+          }
+        } else {
+          console.log(`✅ Plan existant, pas de mise à jour nécessaire : ${plan.arm_subscription_plan_name} (ID: ${plan.arm_subscription_plan_id})`);
+        }
+      })
+    );
+  } catch (error: any) {
+    console.error("Error during fetch:", error.message);
+    throw error; // Relance l'erreur pour la gestion en amont
+  }
+}
 
   async create(createUserDto: CreateUserDto): Promise<void> {
     await this.userRepository.save(createUserDto);
@@ -47,13 +113,13 @@ export class UsersService {
   // Vérifie que l'utilisateur existe
   const user = await this.userRepository.findOne({ where: { id: user_id } });
   if (!user) {
-    throw new NotFoundException(`L'utilisateur avec l'id ${user_id} n'existe pas`);
+    throw new NotFoundException(`L'utilisateur avec l'id ${ user_id } n'existe pas`);
   }
 
   // Vérifie que tous les tags existent
   const existingTags = await this.videosUserTagsRepository.findBy({ id: In(tags_id) });
   if (existingTags.length !== tags_id.length) {
-    throw new NotFoundException(`Certains tags n'existent pas : ${tags_id}`);
+    throw new NotFoundException(`Certains tags n'existent pas : ${ tags_id}`);
   }
 
   // Supprimer toutes les préférences existantes de l'utilisateur
@@ -205,24 +271,23 @@ export class UsersService {
           );
           
           const today = new Date().toISOString()
+          console.log("Aujourd'hui :", today);
+          console.log("Début plan :", armStartPlan);
+          console.log("Fin plan :", armEndPlan);
+          console.log("Début essai :", armStartTrial);
+          console.log("Fin essai :", armEndTrial);
+          console.log("armStartPPlan :", armStartPlan < today);
+          console.log("armEndPlan :", armEndPlan < today);
           memberAccountData.data["plan_actuel"]["arm_start_plan"] =
             (armStartTrial == undefined || armStartTrial == null || armStartPlan < today ) ? armStartPlan : armStartTrial;
           memberAccountData.data["plan_actuel"]["arm_expire_plan"] = 
             (armEndTrial == undefined || armEndTrial == null || armStartPlan < today) ? armEndPlan : armEndTrial;
-
-
-          // console.log(detailsCurrentPlan.arm_trial_end);
-          // console.log(isExpiredSubscription(armEndPlan));
-          // console.log(detailsCurrentPlan.arm_trial_end);
-          // console.log(isExpiredSubscription(detailsCurrentPlan.arm_trial_end));
-          // const premiumStatus = isExpiredSubscription(armEndPlan);
-          //   memberAccountData.data["has_active_premium_subscription"] =
-          //     typeof premiumStatus === "boolean"
-          //       ? premiumStatus
-          //       : !!isExpiredSubscription(detailsCurrentPlan.arm_trial_end);
           
           memberAccountData.data["has_active_premium_subscription"] =
-            isExpiredSubscription(armEndPlan) as boolean || isExpiredSubscription(dateConversionUnixToIso(detailsCurrentPlan.arm_trial_end));
+            isExpiredSubscription(armEndPlan) as boolean || 
+            isExpiredSubscription(dateConversionUnixToIso(detailsCurrentPlan.arm_trial_end)) || 
+            detailsCurrentPlan["arm_user_gateway"] === "manual" || 
+            isExpiredSubscription(dateConversionUnixToIso(detailsCurrentPlan["arm_next_due_payment"])) || isExpiredSubscription(dateConversionUnixToIso(detailsCurrentPlan["arm_next_payment_debit"]))
           if (
             detailsCurrentPlan?.arm_current_plan_detail
               .arm_subscription_plan_options
@@ -445,61 +510,6 @@ async syncUsersMetasFromOrigin() {
   console.log(`Total origin user metas fetched: ${wpFlattened.length}`);
   console.log("Sample origin user meta:", wpFlattened[1]);
 
-
-  //console.log(`Origin user metas fetched: ${JSON.stringify(data, null, 2)}`);
-
-  // console.log({ data });
-  //console.log("Total origin user metas:", data.user_metas);
-
-  // for (const wpUserMeta of wpFlattened) {
-  //   const userId = Number(wpUserMeta.userId);
-  //   const metaKey = wpUserMeta.metaKey;
-  //   const metaValue = wpUserMeta.metaValue === null ? "" : String(wpUserMeta.metaValue);
-
-  //   const existingMeta = usersMetaLocal.find(um => um.userId === userId && um.metaKey === metaKey);
-
-  //   if (!existingMeta) {
-  //     // Crée une nouvelle entrée si elle n'existe pas
-  //     const dto = {
-  //       userId,
-  //       metaKey,
-  //       metaValue,
-  //     };
-  //     await this.usersMetaRepository.save(dto);
-  //     console.log(`➕ Nouveau usermeta ajouté pour user ${userId}, clé: ${metaKey}`);
-  //   } else if (existingMeta.metaValue !== metaValue) {
-  //     // Met à jour l'entrée existante si la valeur a changé
-  //     await this.usersMetaRepository.update(existingMeta.umetaId, { metaValue });
-  //     console.log(`🔄 Usermeta mis à jour pour user ${userId}, clé: ${metaKey}`);
-  //   } else {
-  //     console.log(`✅ Usermeta inchangé pour user ${userId}, clé: ${metaKey}`);
-  //   }
-  // }
-// for (const origin of wpFlattened) {
-//   const { userId, metaKey, metaValue } = origin;
-
-//   const existing = usersMetaLocal.find(
-//     (m) => m.userId === userId && m.metaKey === metaKey
-//   );
-
-//   // 🔹 1. SI le meta existe en local, on le remplace
-//   if (existing) {
-//     if (existing.metaValue !== metaValue) {
-//       await this.usersMetaRepository.update(existing.umetaId, {
-//         metaValue,
-//       });
-//       console.log(`🔄 Mis à jour user ${userId}, key ${metaKey}`);
-//     } else {
-//       console.log(`✅ Inchangé user ${userId}, key ${metaKey}`);
-//     }
-//   }
-
-//   // 🔹 2. SI le meta n'existe pas en local → on ignore complètement
-//   else {
-//     console.log(`⏭️ Ignoré (absent en local) user ${userId}, key ${metaKey}`);
-//   }
-// }
-
 for (const origin of wpFlattened) {
   const { userId, metaKey } = origin;
 
@@ -525,10 +535,10 @@ for (const origin of wpFlattened) {
     console.log(`⏭️ Ignoré (absent en local) user ${userId}, key ${metaKey}`);
   }
 }
-
 }
 
 }
 type WPUserMeta = Record<string, string[]>;
 
 type WPAllMeta = Record<string, WPUserMeta>;
+

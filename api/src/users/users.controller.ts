@@ -64,6 +64,11 @@ async compareUsersIdsOrigin() {
     return await this.usersService.syncUsersMetasFromOrigin();
   }
 
+  @Get("sync-arm-subscriptions-plan")
+  async syncArmSubscriptionsPlan() {
+    return await this.usersService.syncArmSubscriptionsPlan();
+  }
+
   @Get("tags-preferences/:id")
   async getUserTagsPreferences(@Param("id") id: number) {
     const tagsPreferences = await this.usersService.getUserTagsPreferences(id);

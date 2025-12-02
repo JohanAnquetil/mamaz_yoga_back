@@ -7,9 +7,10 @@ import { SubscriptionPlansModule } from "@app/subscription_plans/subscription_pl
 import { TagsPreferencesUser } from "./entities/tags_preferences.entity";
 import { VideosUserTags } from "./entities/tags";
 import { UsersMeta } from "@app/users_meta/entities/users_meta.entity";
+import { SubscriptionPlan } from "@app/subscription_plans/entities/subscription_plan.entity";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, TagsPreferencesUser, VideosUserTags, UsersMeta]), SubscriptionPlansModule],
+  imports: [TypeOrmModule.forFeature([User, TagsPreferencesUser, VideosUserTags, UsersMeta, SubscriptionPlan]), SubscriptionPlansModule],
   controllers: [UsersController],
   providers: [UsersService],
   exports: [UsersService],
